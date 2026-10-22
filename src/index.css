@@ -1,0 +1,21 @@
+@import './design-system/styles/tokens/index.css';
+@import './design-system/styles/base.css';
+
+html,
+body {
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text-default-heading);
+  font-family: var(--font-style-heading);
+  font-weight: 600;
+}

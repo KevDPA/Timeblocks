@@ -1,0 +1,134 @@
+/**
+ * Responsive — typography scale. Mirrors Figma's "Responsive" collection
+ * (Desktop / Mobile modes). Desktop is the :root default; Mobile applies
+ * via `@media (max-width: 767px)` for real browser resizing, and via
+ * `[data-viewport="mobile"]` for forcing mobile sizing in a fixed-width
+ * preview regardless of actual viewport width.
+ *
+ * Only heading levels change between breakpoints; paragraph/caption values
+ * are fixed across Desktop and Mobile per Figma. Text sizes, line heights
+ * and paragraph spacing were re-synced from the live Figma file on
+ * 2026-10-07 (design.md §6.22); a few Figma paragraph-spacing values are
+ * aliases of scale/* steps, shown here already resolved to px.
+ *
+ * Naming rule — each token is the Figma Responsive variable name with "/"
+ * turned into "-" and a "--" prefix, e.g. Figma `heading/page-h3/line-height`
+ * is `--heading-page-h3-line-height`. The Figma names carry both the
+ * semantic name and the heading level (hero has no level); the user renamed
+ * the Figma variables this way on 2026-10-07. The groups:
+ *   hero  large-display-h1  display-h2  heading/page-h3  data-display-h4
+ *   heading/section-h5  heading/card-h6
+ *   body-copy/emphasis (20px)  body-copy/standard (16px)
+ *   body-copy/support (14px)   body-copy/caption (12px)
+ * each with text-size, line-height and paragraph-spacing.
+ * Earlier CSS names, for anyone grepping history: --h1-* … --h6-*,
+ * --paragraph-lg|md|sm-*, --caption-* (design.md §6.22).
+ */
+
+:root {
+  --hero-text-size: 96px;
+  --hero-line-height: 112px;
+  --hero-paragraph-spacing: 48px;
+
+  --large-display-h1-text-size: 72px;
+  --large-display-h1-line-height: 88px;
+  --large-display-h1-paragraph-spacing: 40px;
+
+  --display-h2-text-size: 60px;
+  --display-h2-line-height: 72px;
+  --display-h2-paragraph-spacing: 40px;
+
+  --heading-page-h3-text-size: 48px;
+  --heading-page-h3-line-height: 68px;
+  --heading-page-h3-paragraph-spacing: 32px;
+
+  --data-display-h4-text-size: 36px;
+  --data-display-h4-line-height: 52px;
+  --data-display-h4-paragraph-spacing: 20px;
+
+  --heading-section-h5-text-size: 30px;
+  --heading-section-h5-line-height: 42px;
+  --heading-section-h5-paragraph-spacing: 16px;
+
+  --heading-card-h6-text-size: 24px;
+  --heading-card-h6-line-height: 32px;
+  --heading-card-h6-paragraph-spacing: 12px;
+
+  --body-copy-emphasis-text-size: 20px;
+  --body-copy-emphasis-line-height: 28px;
+  --body-copy-emphasis-paragraph-spacing: 12px;
+
+  --body-copy-standard-text-size: 16px;
+  --body-copy-standard-line-height: 24px;
+  --body-copy-standard-paragraph-spacing: 8px;
+
+  --body-copy-support-text-size: 14px;
+  --body-copy-support-line-height: 20px;
+  --body-copy-support-paragraph-spacing: 4px;
+
+  --body-copy-caption-text-size: 12px;
+  --body-copy-caption-line-height: 16px;
+  --body-copy-caption-paragraph-spacing: 4px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --hero-text-size: 64px;
+    --hero-line-height: 76px;
+    --hero-paragraph-spacing: 32px;
+
+    --large-display-h1-text-size: 56px;
+    --large-display-h1-line-height: 68px;
+    --large-display-h1-paragraph-spacing: 28px;
+
+    --display-h2-text-size: 56px;
+    --display-h2-line-height: 68px;
+    --display-h2-paragraph-spacing: 32px;
+
+    --heading-page-h3-text-size: 36px;
+    --heading-page-h3-line-height: 52px;
+    --heading-page-h3-paragraph-spacing: 24px;
+
+    --data-display-h4-text-size: 30px;
+    --data-display-h4-line-height: 42px;
+    --data-display-h4-paragraph-spacing: 12px;
+
+    --heading-section-h5-text-size: 24px;
+    --heading-section-h5-line-height: 32px;
+    --heading-section-h5-paragraph-spacing: 16px;
+
+    --heading-card-h6-text-size: 20px;
+    --heading-card-h6-line-height: 28px;
+    --heading-card-h6-paragraph-spacing: 12px;
+  }
+}
+
+[data-viewport='mobile'] {
+  --hero-text-size: 64px;
+  --hero-line-height: 76px;
+  --hero-paragraph-spacing: 32px;
+
+  --large-display-h1-text-size: 56px;
+  --large-display-h1-line-height: 68px;
+  --large-display-h1-paragraph-spacing: 28px;
+
+  --display-h2-text-size: 56px;
+  --display-h2-line-height: 68px;
+  --display-h2-paragraph-spacing: 32px;
+
+  --heading-page-h3-text-size: 36px;
+  --heading-page-h3-line-height: 52px;
+  --heading-page-h3-paragraph-spacing: 24px;
+
+  --data-display-h4-text-size: 30px;
+  --data-display-h4-line-height: 42px;
+  --data-display-h4-paragraph-spacing: 12px;
+
+  --heading-section-h5-text-size: 24px;
+  --heading-section-h5-line-height: 32px;
+  --heading-section-h5-paragraph-spacing: 16px;
+
+  --heading-card-h6-text-size: 20px;
+  --heading-card-h6-line-height: 28px;
+  --heading-card-h6-paragraph-spacing: 12px;
+}

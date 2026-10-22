@@ -1,0 +1,154 @@
+/**
+ * Primitives — raw design values.
+ *
+ * Mirrors Figma's "Primitives" variable collection (single mode). Never
+ * consumed directly by components — only `alias.css` may reference these.
+ *
+ * Sourcing: the `slate` ramp below is fully reconstructed from confirmed
+ * Figma values (live variable spot-checks plus the Light/Dark hex pairs in
+ * the design-system-variables skill, cross-referenced against each other
+ * since Light "default" and Dark "default" draw different shades of the
+ * same underlying ramp). `red`/`green`/`orange`/`blue` anchor shades (the
+ * ones actually consumed by a Button state) are confirmed the same way;
+ * the handful of shades between anchors are interpolated and marked
+ * "approx" — verify against Figma's Primitives page directly before
+ * relying on them for a new component.
+ *
+ * Scope: only the ramps the Button family needs (slate/red/green/orange/
+ * blue) are built out. `grey` and the decorative ramps (purple, gold,
+ * brown, navy, cyan, indigo, rose, lime, teal) are added when a component
+ * actually needs them — don't pre-populate unused ramps.
+ */
+
+:root {
+  /* Slate — primary/secondary/neutral chrome. Full ramp re-confirmed live
+     via the Figma Variables API (2026-09-21 token audit) — the previous
+     ramp was mis-indexed exactly one Figma tier too light across 50-700
+     (this file's own "50" was really Figma's "100", etc., meaning Figma's
+     real 50/#f6f7f9 was missing from this file entirely) and slate-400 was
+     a fabricated interpolated value with no real Figma counterpart at all,
+     the same class of bug the green/orange/blue ramps below already had
+     fixed. 800/900/950 were already correct and are unchanged. */
+  --slate-50: #f6f7f9;
+  --slate-100: #edeff2;
+  --slate-150: #e4e8ec;
+  --slate-200: #dbe0e6;
+  --slate-300: #c8d0d9;
+  --slate-400: #b6c1cd;
+  --slate-500: #a4b1c0;
+  --slate-600: #838e9a;
+  --slate-700: #626a73;
+  --slate-800: #42474d;
+  --slate-900: #212326;
+  --slate-950: #101213;
+
+  /* Red — error. Full ramp re-confirmed live via the Figma Variables API.
+     100/150/200/500/600/700/800/900 already matched exactly; only the
+     "approx" placeholders (50/300/400/950) needed correcting. Re-audited
+     2026-09-21 against the live swatch page — every value here matched
+     exactly, no further drift found. */
+  --red-50: #fcefef;
+  --red-100: #f9dede;
+  --red-150: #f5cece;
+  --red-200: #f2bdbd;
+  --red-300: #ec9d9d;
+  --red-400: #eb7676;
+  --red-500: #eb4f4f;
+  --red-600: #cf2c2c;
+  --red-700: #a11c1c;
+  --red-800: #6d1010;
+  --red-900: #360909;
+  --red-950: #160909;
+
+  /* Green — success. Full ramp re-confirmed live via the Figma Variables
+     API (`green/*` in the Primitives collection) — the previous ramp was
+     mis-indexed against Figma's real steps (several values were marked
+     "approx" and never actually confirmed; the mid-ramp was effectively
+     shifted by one step, and green-600 was a fabricated in-between value
+     that didn't correspond to any real Figma primitive at all). Re-audited
+     2026-09-21: 200/300/400/500/700 each had a 1-unit-in-the-last-hex-digit
+     rounding drift from that earlier pass (e.g. `c0efd0` vs Figma's real
+     `c0efcf`) — corrected to match the live swatch page exactly. */
+  --green-50: #f0fbf4;
+  --green-100: #e0f7e8;
+  --green-150: #cef5db;
+  --green-200: #c0efcf;
+  --green-300: #a1e8b9;
+  --green-400: #81e0a1;
+  --green-500: #67d38b;
+  --green-600: #32c964;
+  --green-700: #26974c;
+  --green-800: #196432;
+  --green-900: #0d3219;
+  --green-950: #06190c;
+
+  /* Orange — warning. Full ramp re-confirmed live via the Figma Variables
+     API — same shifted-by-roughly-one-step mis-indexing bug found in
+     green: the old 150/200/300/400/500/600/700 values were each real
+     Figma primitives, just one to two steps off from the name they were
+     stored under (e.g. the old orange-300 was actually Figma's orange-500).
+     Re-audited 2026-09-21 against the live swatch page — every value here
+     matched exactly, no further drift found. */
+  --orange-50: #fff3ed;
+  --orange-100: #ffe8da;
+  --orange-150: #ffdcc8;
+  --orange-200: #ffd0b5;
+  --orange-300: #ffb991;
+  --orange-400: #ffa16c;
+  --orange-500: #ff8a47;
+  --orange-600: #df6926;
+  --orange-700: #b04d14;
+  --orange-800: #75330d;
+  --orange-900: #3b1a07;
+  --orange-950: #1e0d03;
+
+  /* Blue — information. Full ramp re-confirmed live via the Figma
+     Variables API — same shifted-ramp bug as green/orange. Re-audited
+     2026-09-21 against the live swatch page — every value here matched
+     exactly, no further drift found. */
+  --blue-50: #edf3ff;
+  --blue-100: #dae8ff;
+  --blue-150: #c8dcff;
+  --blue-200: #b5d0ff;
+  --blue-300: #91b9ff;
+  --blue-400: #6ca1ff;
+  --blue-500: #478aff;
+  --blue-600: #1f67e6;
+  --blue-700: #144db0;
+  --blue-800: #0d3375;
+  --blue-900: #071a3b;
+  --blue-950: #070e1a;
+
+  /* Absolute white/black */
+  --white: #ffffff;
+  --black: #000000;
+
+  /* Spacing scale — Primitives collection, `scale/*` (Figma-confirmed values). */
+  --scale-0: 0px;
+  --scale-25: 1px;
+  --scale-50: 2px;
+  --scale-100: 4px;
+  --scale-150: 6px;
+  --scale-200: 8px;
+  --scale-300: 12px;
+  --scale-400: 16px;
+  --scale-500: 20px;
+  --scale-600: 24px;
+  --scale-700: 28px;
+  --scale-800: 32px;
+  --scale-900: 36px;
+  --scale-1000: 40px;
+  --scale-1100: 48px;
+  --scale-1200: 56px;
+  --scale-1300: 64px;
+  --scale-1400: 72px;
+  --scale-1500: 96px;
+  --scale-1600: 128px;
+  --scale-1700: 256px;
+  --scale-1800: 512px;
+  --scale-1900: 1024px;
+
+  /* The two font-family tokens (--font-style-heading / -paragraph) moved to
+     alias.css, matching Figma where they now live in the Alias collection
+     (design.md §6.23). */
+}

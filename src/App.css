@@ -1,0 +1,51 @@
+.tb-app {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--scale-600) var(--scale-700) var(--scale-1000);
+}
+
+.tb-app__header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: var(--scale-400);
+}
+.tb-app__title {
+  font-size: var(--heading-card-h6-text-size);
+  line-height: var(--heading-card-h6-line-height);
+}
+.tb-app__week {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-400);
+}
+.tb-app__week-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 180px;
+  color: var(--text-default-heading);
+}
+.tb-app__week-label span {
+  color: var(--text-default-caption);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}
+.tb-app__today {
+  justify-self: end;
+}
+
+.tb-app__panel {
+  border: var(--alias-border-width-xm) solid var(--border-default);
+  border-radius: var(--alias-border-radius-100);
+}
+
+/* While dragging: no text selection, and one cursor everywhere. */
+:root[data-dragging] {
+  user-select: none;
+  cursor: grabbing;
+}
+:root[data-dragging] * {
+  cursor: grabbing !important;
+}

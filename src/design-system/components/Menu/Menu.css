@@ -1,0 +1,97 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Menu — Figma nodes 116:3386 (wrapper, key
+ * 404ec506b75268fd1c7dfbc3d3e97572d084e2c2, 12 variants) and 115:1256
+ * (`.Menu Items`, key b797ab4e539cb808c5fc3021de50e21ad2565aa5, 72
+ * variants: Type × Status × State × Modifier × Corner). Confirmed live via
+ * `boundVariables` inspection — the same row shape Dropdown's own menu
+ * already uses (icon/check bound to `Surface/primary(action)/default`,
+ * not `Icon/*`), extended here with the `Modifier=checkbox`/`radio` rows
+ * (which swap the leading icon for a real `Checkbox`/`Radio` instance)
+ * and the `Corner` axis this bare Menu exposes that Dropdown's fixed
+ * internal menu doesn't need.
+ *
+ * `Type=subtle` vs `Type=filled` are IDENTICAL on hover (`Surface/primary
+ * (action)/default-subtle-hover`) — they only diverge on `State=selected`:
+ * subtle keeps a tint (`Surface/primary(action)/default-subtle`), filled
+ * goes solid (`Surface/primary(action)/default`) — confirmed live, not
+ * assumed from the naming alone.
+ *
+ * `Corner=square` (Figma default) carries a full `Border/default` per
+ * row, radius 0 — rows stack as one continuous bordered list.
+ * `Corner=rounded` drops the border entirely and uses a 4px radius — a
+ * standalone floating menu, each row independent.
+ */
+
+.pa-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--surface-default);
+}
+
+.pa-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-200);
+  padding: 12px 16px;
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-color: var(--border-default);
+  cursor: pointer;
+}
+.pa-menu__item[aria-disabled='true'] {
+  cursor: not-allowed;
+  background-color: var(--surface-disabled-default);
+  color: var(--text-disabled-default);
+}
+
+.pa-menu--corner-square .pa-menu__item + .pa-menu__item {
+  border-top: none;
+}
+.pa-menu--corner-rounded .pa-menu__item {
+  border: none;
+  border-radius: var(--alias-border-radius-100);
+}
+
+.pa-menu__item--type-subtle:hover:not([aria-disabled='true']),
+.pa-menu__item--type-filled:hover:not([aria-disabled='true']) {
+  background-color: var(--surface-primary-action-default-subtle-hover);
+}
+
+.pa-menu__item--type-subtle.pa-menu__item--selected {
+  background-color: var(--surface-primary-action-default-subtle);
+}
+.pa-menu__item--type-filled.pa-menu__item--selected {
+  background-color: var(--surface-primary-action-default);
+  color: var(--text-primary-on-colour);
+}
+
+.pa-menu__icon,
+.pa-menu__check {
+  flex-shrink: 0;
+  color: var(--surface-primary-action-default);
+}
+.pa-menu__item--type-filled.pa-menu__item--selected .pa-menu__icon,
+.pa-menu__item--type-filled.pa-menu__item--selected .pa-menu__check {
+  color: var(--icon-primary-on-colour);
+}
+
+.pa-menu__text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--scale-200);
+  flex: 1;
+  min-width: 0;
+}
+.pa-menu__label {
+  font-family: var(--font-style-paragraph);
+  font-size: 16px;
+  color: var(--text-default-body);
+}
+.pa-menu__subtext {
+  font-family: var(--font-style-paragraph);
+  font-size: 16px;
+  color: var(--text-default-caption);
+}

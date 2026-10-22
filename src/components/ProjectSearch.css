@@ -1,0 +1,23 @@
+@import '../design-system/styles/tokens/index.css';
+
+.tb-search {
+  position: relative;
+  width: 341px;
+  max-width: 100%;
+}
+.tb-search__panel {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + var(--scale-100));
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--surface-default);
+  border: var(--alias-border-width-xm) solid var(--border-default);
+  border-radius: var(--alias-border-radius-100);
+}
+.tb-search__empty {
+  padding: var(--scale-300);
+  color: var(--text-default-caption);
+}

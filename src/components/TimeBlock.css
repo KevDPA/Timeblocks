@@ -1,0 +1,121 @@
+@import '../design-system/styles/tokens/index.css';
+
+/* One block colour per palette index (Item.color); index 4 is white + dashed, for non-project items. */
+.tb-block {
+  --tb-surface: var(--surface-primary-action-default-subtle);
+  --tb-border: var(--border-primary-action-default);
+  position: absolute;
+  z-index: 1;
+  padding: var(--scale-50);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.tb-block--color-1 {
+  --tb-surface: var(--surface-success-default-subtle);
+  --tb-border: var(--border-success-default);
+}
+.tb-block--color-2 {
+  --tb-surface: var(--surface-info-default-subtle);
+  --tb-border: var(--border-info-default);
+}
+.tb-block--color-3 {
+  --tb-surface: var(--surface-warning-default-subtle);
+  --tb-border: var(--border-warning-default);
+}
+.tb-block--color-4 {
+  --tb-surface: var(--surface-default);
+  --tb-border: var(--border-default);
+  --tb-border-style: dashed;
+}
+
+/* The painted card sits inside the positioned wrapper so adjacent blocks keep a 2px gap. */
+.tb-block__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--scale-100) var(--scale-200);
+  overflow: hidden;
+  background: var(--tb-surface);
+  border: var(--alias-border-width-xm) var(--tb-border-style, solid) var(--tb-border);
+  border-left-width: var(--alias-border-width-md);
+  border-radius: var(--alias-border-radius-100);
+  color: var(--text-default-body);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}
+.tb-block__name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* leave room for the hover actions */
+  padding-right: var(--scale-1000);
+}
+.tb-block__hours {
+  color: var(--text-default-caption);
+  white-space: nowrap;
+}
+
+.tb-block:focus-visible {
+  outline: var(--alias-border-width-sm) solid var(--border-primary-action-focus);
+  outline-offset: 0;
+  z-index: 3;
+}
+.tb-block--dragging {
+  z-index: 4;
+  cursor: grabbing;
+  outline: var(--alias-border-width-sm) solid var(--border-primary-action-focus);
+}
+
+.tb-block__actions {
+  position: absolute;
+  top: var(--scale-50);
+  right: var(--scale-50);
+  display: none;
+  gap: 0;
+  cursor: default;
+}
+.tb-block:hover .tb-block__actions,
+.tb-block:focus-within .tb-block__actions {
+  display: flex;
+}
+.tb-block--dragging .tb-block__actions {
+  display: none;
+}
+
+/* Edge/corner resize handles — 8px hit areas straddling the block edge. */
+.tb-block__handle {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+}
+.tb-block__handle--t,
+.tb-block__handle--b {
+  left: var(--scale-200);
+  right: var(--scale-200);
+  height: var(--scale-200);
+  cursor: ns-resize;
+}
+.tb-block__handle--l,
+.tb-block__handle--r {
+  top: var(--scale-200);
+  bottom: var(--scale-200);
+  width: var(--scale-200);
+  cursor: ew-resize;
+}
+.tb-block__handle--t { top: calc(var(--scale-100) * -1); }
+.tb-block__handle--b { bottom: calc(var(--scale-100) * -1); }
+.tb-block__handle--l { left: calc(var(--scale-100) * -1); }
+.tb-block__handle--r { right: calc(var(--scale-100) * -1); }
+.tb-block__handle--tl,
+.tb-block__handle--tr,
+.tb-block__handle--bl,
+.tb-block__handle--br {
+  width: var(--scale-300);
+  height: var(--scale-300);
+}
+.tb-block__handle--tl { top: calc(var(--scale-100) * -1); left: calc(var(--scale-100) * -1); cursor: nwse-resize; }
+.tb-block__handle--tr { top: calc(var(--scale-100) * -1); right: calc(var(--scale-100) * -1); cursor: nesw-resize; }
+.tb-block__handle--bl { bottom: calc(var(--scale-100) * -1); left: calc(var(--scale-100) * -1); cursor: nesw-resize; }
+.tb-block__handle--br { bottom: calc(var(--scale-100) * -1); right: calc(var(--scale-100) * -1); cursor: nwse-resize; }

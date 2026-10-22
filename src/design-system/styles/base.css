@@ -1,0 +1,34 @@
+/**
+ * CSS reset, body defaults, and typography utility classes. Separate from
+ * the token layer so a consuming app can take the tokens without this
+ * opinionated reset.
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-style-paragraph);
+  font-size: var(--body-copy-standard-text-size);
+  line-height: var(--body-copy-standard-line-height);
+  color: var(--text-default-body);
+  background-color: var(--surface-default);
+}
+
+.text-paragraph-lg {
+  font-size: var(--body-copy-emphasis-text-size);
+  line-height: var(--body-copy-emphasis-line-height);
+}
+
+.text-paragraph-md {
+  font-size: var(--body-copy-standard-text-size);
+  line-height: var(--body-copy-standard-line-height);
+}
+
+.text-paragraph-sm {
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}

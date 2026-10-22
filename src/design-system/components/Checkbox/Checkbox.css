@@ -1,0 +1,154 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Checkbox (bare control) — Figma node 115:38, key
+ * ef53e50ade77e7f9121ed14bf7287d3661b4afd2. Per Figma's own component
+ * description: "no label... Status managed by interaction state, do not
+ * set manually" — confirms the dual mechanism (native :hover/:focus-
+ * visible/:disabled drive it for real, `status` prop only forces a
+ * presentation) is the intended design here, not just a pattern we're
+ * imposing.
+ *
+ * All bindings live-confirmed via get_design_context, not assumed:
+ *   - radius is border-radius/100 (4px) for BOTH lg and md — the skill
+ *     doc's claim of border-radius/200 (8px) for lg was wrong.
+ *   - hover recolors the FILL (not just the border, unlike Button/Field);
+ *     border stays at its resting color on hover for both selected and
+ *     unselected — only the focus ring and hover glow are additive.
+ *   - unselected+disabled keeps Border/default (not Border/disabled/
+ *     default) — but selected+disabled DOES switch to Border/disabled/
+ *     default. Confirmed live, not symmetric, implemented as found.
+ *   - KNOWN FIGMA DATA GAP: Type=unselected + State=error shows no error
+ *     styling at rest (same as State=default) — confirmed by checking
+ *     get_design_context directly, not an oversight here. Reproduced
+ *     faithfully; worth fixing at the Figma source since an invalid,
+ *     unchecked required checkbox should probably show something.
+ */
+
+.pa-checkbox {
+  position: relative;
+  display: inline-flex;
+}
+
+.pa-checkbox__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.pa-checkbox__input:disabled {
+  cursor: not-allowed;
+}
+
+.pa-checkbox__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: var(--scale-50);
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-100);
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* ---- Sizes ---- */
+.pa-checkbox--size-lg .pa-checkbox__box {
+  width: 28px;
+  height: 28px;
+}
+.pa-checkbox--size-md .pa-checkbox__box {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============ Type = unselected ============ */
+.pa-checkbox--type-unselected .pa-checkbox__box {
+  background-color: var(--surface-default);
+  border-color: var(--border-default);
+}
+.pa-checkbox--type-unselected .pa-checkbox__input:hover:not(:disabled) ~ .pa-checkbox__box,
+.pa-checkbox--type-unselected.pa-checkbox--status-hover .pa-checkbox__box {
+  background-color: var(--surface-primary-action-default-subtle-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(98, 106, 115, 0.1),
+    0 0 0 1px rgba(98, 106, 115, 0.5),
+    0 1px 1px 0 rgba(98, 106, 115, 0.2),
+    0 0 0 4px rgba(98, 106, 115, 0.2);
+}
+.pa-checkbox--type-unselected .pa-checkbox__input:disabled ~ .pa-checkbox__box,
+.pa-checkbox--type-unselected.pa-checkbox--status-disabled .pa-checkbox__box {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-default);
+}
+
+/* ============ Type = selected / indeterminate (identical bindings,
+   confirmed live — differ only in which icon renders) ============ */
+.pa-checkbox--type-selected .pa-checkbox__box,
+.pa-checkbox--type-indeterminate .pa-checkbox__box {
+  background-color: var(--surface-primary-action-default);
+  border-color: var(--border-primary-action-default);
+  color: var(--icon-primary-on-colour);
+}
+.pa-checkbox--type-selected .pa-checkbox__input:hover:not(:disabled) ~ .pa-checkbox__box,
+.pa-checkbox--type-indeterminate .pa-checkbox__input:hover:not(:disabled) ~ .pa-checkbox__box,
+.pa-checkbox--type-selected.pa-checkbox--status-hover .pa-checkbox__box,
+.pa-checkbox--type-indeterminate.pa-checkbox--status-hover .pa-checkbox__box {
+  background-color: var(--surface-primary-action-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(98, 106, 115, 0.1),
+    0 0 0 1px rgba(98, 106, 115, 0.5),
+    0 1px 1px 0 rgba(98, 106, 115, 0.2),
+    0 0 0 4px rgba(98, 106, 115, 0.2);
+}
+.pa-checkbox--type-selected .pa-checkbox__input:disabled ~ .pa-checkbox__box,
+.pa-checkbox--type-indeterminate .pa-checkbox__input:disabled ~ .pa-checkbox__box,
+.pa-checkbox--type-selected.pa-checkbox--status-disabled .pa-checkbox__box,
+.pa-checkbox--type-indeterminate.pa-checkbox--status-disabled .pa-checkbox__box {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-disabled-default);
+  color: var(--icon-disabled-default);
+}
+
+/* ============ Focus ring — both types, offset ring not a border
+   recolor, same technique/dimensions as Button (2px, -5px, radius-200) ===== */
+.pa-checkbox__input:focus-visible ~ .pa-checkbox__box,
+.pa-checkbox--status-focus .pa-checkbox__box {
+  box-shadow:
+    0 0 0 5px var(--surface-default),
+    0 0 0 7px var(--border-primary-action-focus);
+}
+.pa-checkbox--state-error .pa-checkbox__input:focus-visible ~ .pa-checkbox__box,
+.pa-checkbox--state-error.pa-checkbox--status-focus .pa-checkbox__box {
+  box-shadow:
+    0 0 0 5px var(--surface-default),
+    0 0 0 7px var(--border-error-focus);
+}
+
+/* ============ State = error ============
+ * Type=unselected + error deliberately has NO override below — matches
+ * the confirmed Figma gap (see file header comment). Only selected/
+ * indeterminate get real error styling, exactly as Figma shows. */
+.pa-checkbox--state-error.pa-checkbox--type-selected .pa-checkbox__box,
+.pa-checkbox--state-error.pa-checkbox--type-indeterminate .pa-checkbox__box {
+  background-color: var(--surface-error-default);
+  border-color: var(--border-error-default);
+  color: var(--icon-error-on-colour);
+}
+.pa-checkbox--state-error.pa-checkbox--type-selected .pa-checkbox__input:hover:not(:disabled) ~ .pa-checkbox__box,
+.pa-checkbox--state-error.pa-checkbox--type-indeterminate .pa-checkbox__input:hover:not(:disabled) ~ .pa-checkbox__box,
+.pa-checkbox--state-error.pa-checkbox--type-selected.pa-checkbox--status-hover .pa-checkbox__box,
+.pa-checkbox--state-error.pa-checkbox--type-indeterminate.pa-checkbox--status-hover .pa-checkbox__box {
+  background-color: var(--surface-error-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(161, 28, 28, 0.1),
+    0 0 0 1px rgba(161, 28, 28, 0.5),
+    0 1px 1px 0 rgba(161, 28, 28, 0.2),
+    0 0 0 4px rgba(161, 28, 28, 0.2);
+}

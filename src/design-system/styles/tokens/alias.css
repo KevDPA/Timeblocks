@@ -1,0 +1,158 @@
+/**
+ * Alias — semantic pointers into Primitives. THIS is the brand-swap layer.
+ *
+ * Mirrors Figma's "Alias" variable collection (single mode). Mapped tokens
+ * only ever reference these, never Primitives directly.
+ *
+ * To rebrand: create a file in `src/styles/themes/` that redefines the
+ * `--alias-primary-*` (and optionally `--alias-secondary-*`) ramp under
+ * `[data-brand="<name>"]`, plus the two `--font-style-*` tokens, and
+ * optionally the `--alias-border-radius-*` tokens. Every Mapped token and
+ * every component updates automatically — see `themes/_brand-template.css`.
+ *
+ * Figma: "primary and secondary both map to slate. To change the brand's
+ * primary colour, update the alias pointers — all downstream Mapped
+ * tokens update automatically." (design-system-variables skill)
+ */
+
+:root {
+  /* Typeface — the single point of change for a brand's fonts. Literal values,
+     not pointers (the one exception to "Alias points at Primitives": a font
+     name has no ramp to point into). Figma: Alias -> font-style/heading and
+     font-style/paragraph; every text style is bound to these (design.md §6.23). */
+  --font-style-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-style-paragraph: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Primary / secondary both point at slate by default, per Figma. */
+  --alias-primary-50: var(--slate-50);
+  --alias-primary-100: var(--slate-100);
+  --alias-primary-150: var(--slate-150);
+  --alias-primary-200: var(--slate-200);
+  --alias-primary-300: var(--slate-300);
+  --alias-primary-400: var(--slate-400);
+  --alias-primary-500: var(--slate-500);
+  --alias-primary-600: var(--slate-600);
+  --alias-primary-700: var(--slate-700);
+  --alias-primary-800: var(--slate-800);
+  --alias-primary-900: var(--slate-900);
+  --alias-primary-950: var(--slate-950);
+
+  --alias-secondary-50: var(--slate-50);
+  --alias-secondary-100: var(--slate-100);
+  --alias-secondary-150: var(--slate-150);
+  --alias-secondary-200: var(--slate-200);
+  --alias-secondary-300: var(--slate-300);
+  --alias-secondary-400: var(--slate-400);
+  --alias-secondary-500: var(--slate-500);
+  --alias-secondary-600: var(--slate-600);
+  --alias-secondary-700: var(--slate-700);
+  --alias-secondary-800: var(--slate-800);
+  --alias-secondary-900: var(--slate-900);
+  --alias-secondary-950: var(--slate-950);
+
+  /* Neutral chrome — always slate, independent of brand primary color. */
+  --alias-neutral-slate-50: var(--slate-50);
+  --alias-neutral-slate-100: var(--slate-100);
+  --alias-neutral-slate-150: var(--slate-150);
+  --alias-neutral-slate-200: var(--slate-200);
+  --alias-neutral-slate-300: var(--slate-300);
+  --alias-neutral-slate-400: var(--slate-400);
+  --alias-neutral-slate-500: var(--slate-500);
+  --alias-neutral-slate-600: var(--slate-600);
+  --alias-neutral-slate-700: var(--slate-700);
+  --alias-neutral-slate-800: var(--slate-800);
+  --alias-neutral-slate-900: var(--slate-900);
+  --alias-neutral-slate-950: var(--slate-950);
+
+  /* Error / success / warning / info — semantic, not brand-swapped. */
+  --alias-error-50: var(--red-50);
+  --alias-error-100: var(--red-100);
+  --alias-error-150: var(--red-150);
+  --alias-error-200: var(--red-200);
+  --alias-error-300: var(--red-300);
+  --alias-error-400: var(--red-400);
+  --alias-error-500: var(--red-500);
+  --alias-error-600: var(--red-600);
+  --alias-error-700: var(--red-700);
+  --alias-error-800: var(--red-800);
+  --alias-error-900: var(--red-900);
+  --alias-error-950: var(--red-950);
+
+  --alias-success-50: var(--green-50);
+  --alias-success-100: var(--green-100);
+  --alias-success-150: var(--green-150);
+  --alias-success-200: var(--green-200);
+  --alias-success-300: var(--green-300);
+  --alias-success-400: var(--green-400);
+  --alias-success-500: var(--green-500);
+  --alias-success-600: var(--green-600);
+  --alias-success-700: var(--green-700);
+  --alias-success-800: var(--green-800);
+  --alias-success-900: var(--green-900);
+  --alias-success-950: var(--green-950);
+
+  --alias-warning-50: var(--orange-50);
+  --alias-warning-100: var(--orange-100);
+  --alias-warning-150: var(--orange-150);
+  --alias-warning-200: var(--orange-200);
+  --alias-warning-300: var(--orange-300);
+  --alias-warning-400: var(--orange-400);
+  --alias-warning-500: var(--orange-500);
+  --alias-warning-600: var(--orange-600);
+  --alias-warning-700: var(--orange-700);
+  --alias-warning-800: var(--orange-800);
+  --alias-warning-900: var(--orange-900);
+  --alias-warning-950: var(--orange-950);
+
+  --alias-info-50: var(--blue-50);
+  --alias-info-100: var(--blue-100);
+  --alias-info-150: var(--blue-150);
+  --alias-info-200: var(--blue-200);
+  --alias-info-300: var(--blue-300);
+  --alias-info-400: var(--blue-400);
+  --alias-info-500: var(--blue-500);
+  --alias-info-600: var(--blue-600);
+  --alias-info-700: var(--blue-700);
+  --alias-info-800: var(--blue-800);
+  --alias-info-900: var(--blue-900);
+  --alias-info-950: var(--blue-950);
+
+  --alias-foundations-white: var(--white);
+  --alias-foundations-black: var(--black);
+
+  /* Border radius — Figma's real scale (100=4px, 200=8px, 300=12px, ...).
+     There is no 150 step: it existed in an earlier iteration and was removed
+     from Figma (design.md §6.22). */
+  --alias-border-radius-0: var(--scale-0);
+  --alias-border-radius-50: var(--scale-50);
+  --alias-border-radius-100: var(--scale-100);
+  --alias-border-radius-200: var(--scale-200);
+  --alias-border-radius-300: var(--scale-300);
+  --alias-border-radius-400: var(--scale-400);
+  --alias-border-radius-500: var(--scale-500);
+  --alias-border-radius-600: var(--scale-600);
+  --alias-border-radius-700: var(--scale-700);
+  --alias-border-radius-800: var(--scale-800);
+  --alias-border-radius-round: var(--scale-1900);
+
+  /* Border width */
+  --alias-border-width-xm: var(--scale-25); /* 1px */
+  --alias-border-width-sm: var(--scale-50); /* 2px */
+  --alias-border-width-md: var(--scale-100); /* 4px */
+
+  /* Ergonomic spacing aliases for layout CSS outside components (not a
+     strict Figma mirror — a pragmatic convenience layer). */
+  --spacing-xs: var(--scale-100);
+  --spacing-sm: var(--scale-200);
+  --spacing-md: var(--scale-300);
+  --spacing-lg: var(--scale-400);
+  --spacing-xl: var(--scale-600);
+  --spacing-2xl: var(--scale-800);
+
+  /* Icon sizing, matched to Button/ButtonIcon's confirmed sm/md/lg (28/36/
+     44px) height scale. Not an independently confirmed Figma collection —
+     carried forward from the project's existing convention. */
+  --icon-size-sm: var(--scale-400); /* 16px */
+  --icon-size-md: var(--scale-500); /* 20px */
+  --icon-size-lg: var(--scale-600); /* 24px */
+}

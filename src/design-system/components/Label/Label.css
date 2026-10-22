@@ -1,0 +1,28 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Label — Figma node 114:3737, key 94e78c88fd26823275ea5f5c1359038d066d12d0.
+ * Type(none/required/optional), all live-confirmed:
+ *   - required: label text + a "*" glyph coloured `Icon/warning/default`
+ *     (amber, not error-red — confirmed, not assumed).
+ *   - optional: label text + "(optional)" in `Text/default/caption`
+ *     (12px, smaller than the 14px label text).
+ */
+
+.pa-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-style-paragraph);
+  font-size: 14px;
+  color: var(--text-default-body);
+}
+
+.pa-label__asterisk {
+  color: var(--icon-warning-default);
+}
+
+.pa-label__optional {
+  font-size: 12px;
+  color: var(--text-default-caption);
+}

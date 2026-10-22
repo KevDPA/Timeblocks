@@ -1,0 +1,188 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Radio (bare control) — Figma node 115:1198, key
+ * 2a5386d31aa595b5919d65f1a640653844180106. Per Figma's own component
+ * description: "no label... Status managed by interaction state, do not
+ * set manually" — same dual mechanism as Checkbox/Switch (native
+ * :hover/:focus-visible/:disabled drive it for real, `status` prop only
+ * forces a presentation for Storybook/docs).
+ *
+ * Radio shares Checkbox's exact axis naming (Type/Status/State/Size, with
+ * State = default/error) — unlike Switch, which names the same two
+ * concepts State/Feedback. This raised the shared-engine question the
+ * roadmap flagged: Radio and Checkbox DO share the same conceptual shape
+ * (hover recolors fill not border; disabled is asymmetric between
+ * selected/unselected), but three concrete bindings were confirmed live to
+ * genuinely differ, not just cosmetically:
+ *   1. Focus ring is 4px gap + 2px ring (6px total) here, vs Checkbox's
+ *      5px + 2px (7px total).
+ *   2. Type=selected's hover glow tint is NOT the standard rgb(98,106,115)
+ *      neutral tint Checkbox/Switch/Button/Field all use — Figma has it
+ *      hardcoded to rgb(37,43,51) / #252B33, unbound to any variable.
+ *      Reproduced exactly as found, not normalized to the usual tint.
+ *   3. The center dot does NOT recolor under State=error — it stays
+ *      Icon/primary/on-colour in every Status (default/hover/focus/
+ *      disabled), confirmed live in all four. Checkbox's checkmark DOES
+ *      switch to Icon/error/on-colour under the same condition.
+ * Given real per-component divergence on 3 of the ~6 distinct bindings, a
+ * forced shared CSS engine would need as many override hooks as it saved —
+ * exactly the "creates worse code than a little duplication" case the
+ * roadmap's own rule warns about. Kept standalone, per Checkbox/Switch's
+ * own precedent of copy-adapt rather than merge.
+ *
+ * **Known Figma data-quality gap, reproduced faithfully** (same shape as
+ * Checkbox's, confirmed even more completely here): `Type=unselected` +
+ * `State=error` has ZERO error styling in every Status checked — default,
+ * hover, focus (the ring itself stays primary-action-focus, not
+ * error-focus), and disabled. An unchecked, required radio in a
+ * validation-failed group looks identical to a valid one. Worth fixing at
+ * the Figma source; `--state-error` deliberately has no unselected block
+ * below, matching what's actually there.
+ *
+ * **Confirmed asymmetry, not a bug** (same shape as Checkbox's): `Type=
+ * unselected` + `Status=disabled` keeps `Border/default` (unchanged from
+ * resting); `Type=selected` + `Status=disabled` switches to `Border/
+ * disabled/default`. Implemented exactly as found.
+ */
+
+.pa-radio {
+  position: relative;
+  display: inline-flex;
+}
+
+.pa-radio__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.pa-radio__input:disabled {
+  cursor: not-allowed;
+}
+
+.pa-radio__circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-round);
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.pa-radio__dot {
+  border-radius: var(--alias-border-radius-round);
+  background-color: var(--icon-primary-on-colour);
+}
+
+/* ---- Sizes ---- */
+.pa-radio--size-lg .pa-radio__circle {
+  width: 28px;
+  height: 28px;
+}
+.pa-radio--size-lg .pa-radio__dot {
+  width: 12px;
+  height: 12px;
+}
+.pa-radio--size-md .pa-radio__circle {
+  width: 20px;
+  height: 20px;
+}
+.pa-radio--size-md .pa-radio__dot {
+  width: 8px;
+  height: 8px;
+}
+
+/* ============ Type = unselected ============
+   State=error deliberately has NO block below — confirmed live to be
+   completely inert for this type across every Status, see file header. */
+.pa-radio--type-unselected .pa-radio__circle {
+  background-color: var(--surface-default);
+  border-color: var(--border-default);
+}
+.pa-radio--type-unselected .pa-radio__input:hover:not(:disabled) ~ .pa-radio__circle,
+.pa-radio--type-unselected.pa-radio--status-hover .pa-radio__circle {
+  background-color: var(--surface-primary-action-default-subtle-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(98, 106, 115, 0.1),
+    0 0 0 1px rgba(98, 106, 115, 0.5),
+    0 1px 1px 0 rgba(98, 106, 115, 0.2),
+    0 0 0 4px rgba(98, 106, 115, 0.2);
+}
+.pa-radio--type-unselected .pa-radio__input:disabled ~ .pa-radio__circle,
+.pa-radio--type-unselected.pa-radio--status-disabled .pa-radio__circle {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-default);
+}
+
+/* ============ Type = selected ============ */
+.pa-radio--type-selected .pa-radio__circle {
+  background-color: var(--surface-primary-action-default);
+  border-color: var(--border-primary-action-default);
+}
+/* Hover glow tint here is Figma's own hardcoded rgb(37,43,51) — NOT the
+   usual rgb(98,106,115) neutral tint, see file header. Border and dot
+   colour are unchanged on hover, confirmed live (fill-only recolor, same
+   as Checkbox). */
+.pa-radio--type-selected .pa-radio__input:hover:not(:disabled) ~ .pa-radio__circle,
+.pa-radio--type-selected.pa-radio--status-hover .pa-radio__circle {
+  background-color: var(--surface-primary-action-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(37, 43, 51, 0.1),
+    0 0 0 1px rgba(37, 43, 51, 0.5),
+    0 1px 1px 0 rgba(37, 43, 51, 0.2),
+    0 0 0 4px rgba(37, 43, 51, 0.2);
+}
+.pa-radio--type-selected .pa-radio__input:disabled ~ .pa-radio__circle,
+.pa-radio--type-selected.pa-radio--status-disabled .pa-radio__circle {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-disabled-default);
+}
+.pa-radio--type-selected .pa-radio__input:disabled ~ .pa-radio__circle .pa-radio__dot,
+.pa-radio--type-selected.pa-radio--status-disabled .pa-radio__dot {
+  background-color: var(--icon-disabled-on-colour);
+}
+
+/* ============ Focus ring — offset ring, 4px gap + 2px ring (6px total),
+   confirmed distinct from Checkbox's 5px + 2px ============ */
+.pa-radio__input:focus-visible ~ .pa-radio__circle,
+.pa-radio--status-focus .pa-radio__circle {
+  box-shadow:
+    0 0 0 4px var(--surface-default),
+    0 0 0 6px var(--border-primary-action-focus);
+}
+.pa-radio--state-error.pa-radio--type-selected .pa-radio__input:focus-visible ~ .pa-radio__circle,
+.pa-radio--state-error.pa-radio--type-selected.pa-radio--status-focus .pa-radio__circle {
+  box-shadow:
+    0 0 0 4px var(--surface-default),
+    0 0 0 6px var(--border-error-focus);
+}
+
+/* ============ State = error — Type=selected only, see file header for
+   the confirmed Type=unselected gap. Dot stays Icon/primary/on-colour
+   throughout, confirmed live, NOT recolored the way Checkbox's checkmark
+   is. ============ */
+.pa-radio--state-error.pa-radio--type-selected .pa-radio__circle {
+  background-color: var(--surface-error-default);
+  border-color: var(--border-error-default);
+}
+.pa-radio--state-error.pa-radio--type-selected .pa-radio__input:hover:not(:disabled) ~ .pa-radio__circle,
+.pa-radio--state-error.pa-radio--type-selected.pa-radio--status-hover .pa-radio__circle {
+  background-color: var(--surface-error-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(161, 28, 28, 0.1),
+    0 0 0 1px rgba(161, 28, 28, 0.5),
+    0 1px 1px 0 rgba(161, 28, 28, 0.2),
+    0 0 0 4px rgba(161, 28, 28, 0.2);
+}

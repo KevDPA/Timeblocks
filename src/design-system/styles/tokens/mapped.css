@@ -1,0 +1,607 @@
+/**
+ * Mapped (component) — the ONLY layer component CSS may reference.
+ *
+ * Mirrors Figma's "Mapped (component)" collection: Light values live in
+ * `:root`, Dark re-declares the same variable names under
+ * `[data-theme="dark"]`. Toggling dark mode is pure CSS — set
+ * `document.documentElement.dataset.theme = 'dark'`, no JS token logic.
+ *
+ * Naming: --{role}-{semantic}-{variant}, role ∈ surface|border|text|icon.
+ * Parenthesized Figma segments drop parens: `primary(action)` → `primary-action`.
+ *
+ * Sourcing: "default" values for every semantic (primary/error/success/
+ * warning/info) plus the primary/secondary interaction ramp were pulled
+ * live from bound Figma variables on real Button/ButtonIcon/CloseButton
+ * instances (see plan verification notes) — several corrected mismatches
+ * against the design-system-variables skill's summary table along the way.
+ *
+ * Full-file audit (2026-09-23, design.md §6.8): every Light-mode
+ * (`:root`) Surface/Border/Text/Icon token — default/hover/pressed/subtle
+ * tiers, all six semantics — was individually cross-checked against
+ * `get_variable_defs` resolved on 9 independent live component instances
+ * (Button, Field, Badge, Toast, Switch Label, Dropdown, Button Group Item,
+ * Tag, Checkbox), all agreeing with no conflicts. 60 tokens were wrong —
+ * the "derived via the same relative shade-step pattern, not
+ * independently live-verified" approach this file used to rely on turned
+ * out to systematically mis-predict the real Figma steps for every
+ * semantic except primary. All are now live-confirmed exact matches; see
+ * design.md §6.8 for the full before/after table and method. **Dark mode
+ * (`[data-theme='dark']`) was NOT touched by this pass** — its values are
+ * still the original, unaudited relative-shade-step derivations below.
+ *
+ * `success/default` landing on the SAME step for all four roles (rather
+ * than the staggered Border/Surface/Text pattern most other semantics
+ * use) is no longer a special case worth calling out — §6.8 found the
+ * same flat pattern for every semantic's plain `default`/`default-subtle`
+ * tier (only `hover`/`pressed`/`subtle-hover`/`subtle-pressed` stagger).
+ *
+ * Partial dark-mode audit (2026-09-23, design.md §6.9): before the
+ * §6.10 pass below existed, dark-mode component instances were rare in
+ * this file — most pages had none. Two were found (inside Toast's and
+ * Banner's pages), giving live confirmation for 25 tokens, 5 of which
+ * were wrong and got fixed. Superseded in scope by §6.10, kept for
+ * history.
+ *
+ * Full dark-mode audit (2026-09-23, design.md §6.10): the user added a
+ * dedicated "Dark mode showcase" frame to the Button page in Figma
+ * (containing Button instances across every State/Type/Status) and
+ * re-published — the dark-mode equivalent of the light-mode Button audit
+ * in §6.8. Cross-checked against every dark-mode (`[data-theme='dark']`)
+ * Surface/Border/Text/Icon token this frame covers (120 of ~136): 57
+ * were wrong (47.5%), same off-by-one-or-more-ramp-steps shape as light
+ * mode, now fixed. Two more `primitives.css` one-hex-digit rounding
+ * errors (`green-400`, `green-500`) were also found and fixed as a side
+ * effect, the same class as the `green-700`/`green-300` fixes from §6.8.
+ * All 120 checked tokens are now live-confirmed exact matches.
+ *
+ * Dark-mode gap-closing pass (2026-09-23, design.md §6.13): discovered
+ * that Field & Input, Toast, Banners, Badge, and Dropdown each have their
+ * own "Dark mode showcase" frame too (per-page, matching what
+ * `PA_DS_Component_integrity.md` describes) — missed earlier because a
+ * provenance mixup (see §6.12) had those checks running against the
+ * wrong Figma file key. Re-run against the correct key
+ * (`QsMHb5J2xyNAxJQsypiGUc`), these closed 9 of the 16 tokens §6.10 left
+ * unconfirmed: `--surface-inverse`, `--border-default`,
+ * `--text-default-caption`, `--text-default-placeholder`,
+ * `--text-disabled-default`, `--icon-disabled-on-colour` were wrong and
+ * are now fixed (see inline comments at each); `--surface-page-secondary`,
+ * `--border-disabled-default`, `--text-default-body`, and
+ * `--text-disabled-on-colour` were independently confirmed already
+ * correct.
+ *
+ * **Still not covered** (no live dark-mode source found yet across
+ * Button/Field/Toast/Banners/Badge/Dropdown's showcases):
+ * `--surface-success-focus`, `--border-on-colour`,
+ * `--border-disabled-on-colour`, `--text-default-heading`,
+ * `--text-secondary-on-colour`, `--text-info-on-colour-hover`, and
+ * `--icon-primary-default-subtle`/`-subtle-hover` — 7 tokens remain the
+ * original unaudited derivations. Likely sources: a focus-ring-bearing
+ * component (Checkbox/Radio/Switch/Input) for `--surface-success-focus`
+ * and `--border-on-colour`; a heading-bearing component (Modal/Accordion)
+ * for `--text-default-heading`; a filled secondary-surface component for
+ * `--text-secondary-on-colour`. See design.md §6.13 for the full method
+ * and fix table.
+ *
+ * Full re-sync (2026-10-09, design.md §6.28): every Figma Mapped variable —
+ * Light AND Dark, all 177 — was exported live and is now mirrored here by
+ * value and by the Alias variable it points at; `npm run audit:foundations`
+ * enforces it. Lines changed that day carry a trailing `Figma 2026-10-09`
+ * comment; the older "unaudited Dark" caveat above no longer applies.
+ */
+
+:root {
+  /* ---- Surface — generic ---- */
+  --surface-default: var(--alias-foundations-white);
+  /* Figma `Surface/secondary` and `Surface/page-secondary` both point at
+     neutral-slate/50 (#f6f7f9). Earlier code used a CSS-only off-white alias. */
+  --surface-page-secondary: var(--alias-neutral-slate-50); /* Figma 2026-10-09: Surface/secondary (was alias-foundations-off-white) */
+  /* Figma-confirmed live (Toast, Style=inverse): #212326 = alias-neutral-
+     slate-900 — always the opposite of the page background regardless of
+     theme, used for Toast's "inverse" style. */
+  --surface-inverse: var(--alias-neutral-slate-900);
+  --surface-disabled-default: var(--alias-neutral-slate-100);
+
+  /* ---- Surface — primary(action) ---- */
+  --surface-primary-action-default: var(--alias-primary-800);
+  --surface-primary-action-default-hover: var(--alias-primary-900);
+  --surface-primary-action-default-pressed: var(--alias-primary-950);
+  /* Fixed 2026-09-22: the subtle tier (surface + border, default/hover/
+     pressed, 6 tokens total) was one ramp step lighter than Figma's live
+     resolution — confirmed independently via get_variable_defs on both
+     Switch (node 117:472/437/462/497) and Button's subtle type (node
+     59:1421/2041/8965) agreeing exactly, so this was a shared Mapped-
+     token error, not a Switch-specific one. Every component reading these
+     tokens (Badge, Banner, Button, ButtonGroup, CloseButton, DatePicker,
+     Dropdown, FileUpload, Menu, Modal, SideNav, Switch, Tag, Toast,
+     TopNav) picks up the corrected color automatically. Only the primary
+     family's subtle tier was re-verified this pass — secondary/error/
+     success/warning/info subtle tokens and dark mode were NOT re-checked,
+     don't assume they share this fix. */
+  --surface-primary-action-default-subtle: var(--alias-primary-100);
+  --surface-primary-action-default-subtle-hover: var(--alias-primary-200);
+  --surface-primary-action-default-subtle-pressed: var(--alias-primary-300);
+
+  /* ---- Surface — secondary(action) ---- */
+  --surface-secondary-action-default: var(--alias-foundations-white);
+  --surface-secondary-action-default-subtle: var(--alias-foundations-white);
+  --surface-secondary-action-default-hover: var(--alias-secondary-150);
+  --surface-secondary-action-default-pressed: var(--alias-secondary-200);
+  --surface-secondary-action-default-subtle-hover: var(--alias-secondary-150);
+  --surface-secondary-action-default-subtle-pressed: var(--alias-secondary-150);
+
+  /* ---- Surface — error ---- */
+  --surface-error-default: var(--alias-error-600);
+  --surface-error-default-subtle: var(--alias-error-50);
+  --surface-error-default-hover: var(--alias-error-700);
+  --surface-error-default-pressed: var(--alias-error-800);
+  --surface-error-default-subtle-hover: var(--alias-error-150);
+  --surface-error-default-subtle-pressed: var(--alias-error-200);
+
+  /* ---- Surface — success ---- */
+  /* Confirmed live 2026-09-24 via Button's light-mode frame (get_variable_defs,
+     node 59:1186): Surface/success/default = #196432 = success-800, ONE STEP
+     DARKER than Text/success/default (#26974c = success-700) — success/default
+     does NOT land on a single shared step across all four roles the way
+     design.md §6.11 assumed; that assumption held for the other semantics but
+     not this one. Border matches Surface (also 800, see below). */
+  --surface-success-default: var(--alias-success-800);
+  --surface-success-default-subtle: var(--alias-success-50);
+  --surface-success-default-hover: var(--alias-success-900);
+  --surface-success-default-pressed: var(--alias-success-950);
+  --surface-success-default-subtle-hover: var(--alias-success-150);
+  --surface-success-default-subtle-pressed: var(--alias-success-300);
+  --surface-success-focus: var(--alias-success-800); /* Figma 2026-10-09: Surface/success/focus (was alias-success-700) */
+
+  /* ---- Surface — warning ---- */
+  /* Confirmed live 2026-09-24 (Button light frame, node 59:1186, same pass
+     that found success/default's drift): Surface/warning/default = #b04d14
+     = warning-700, one step darker than Text/warning/default (#df6926 =
+     warning-600) — the same Surface/Border-darker-than-Text shape found for
+     success. default-hover follows the same +1 shift (see below). */
+  --surface-warning-default: var(--alias-warning-700);
+  --surface-warning-default-subtle: var(--alias-warning-50);
+  --surface-warning-default-hover: var(--alias-warning-800);
+  --surface-warning-default-pressed: var(--alias-warning-800);
+  --surface-warning-default-subtle-hover: var(--alias-warning-200);
+  --surface-warning-default-subtle-pressed: var(--alias-warning-300);
+
+  /* ---- Surface — info ---- */
+  --surface-info-default: var(--alias-info-600);
+  --surface-info-default-subtle: var(--alias-info-50);
+  --surface-info-default-hover: var(--alias-info-800);
+  --surface-info-default-pressed: var(--alias-info-900);
+  --surface-info-default-subtle-hover: var(--alias-info-200);
+  --surface-info-default-subtle-pressed: var(--alias-info-300);
+
+  /* ---- Border — generic ---- */
+  --border-default: var(--alias-neutral-slate-300);
+  --border-on-colour: var(--alias-foundations-white);
+  --border-disabled-default: var(--alias-neutral-slate-150);
+  --border-disabled-on-colour: var(--alias-neutral-slate-800);
+
+  /* ---- Border — primary(action) ---- */
+  /* Fixed 2026-09-22 (see design.md §6.7): default/pressed were one ramp
+     step too light (alias-primary-600), same off-by-one shape as the
+     subtle tier above. Confirmed via get_variable_defs on Button's
+     outline type (default: node 59:1751, pressed: node 185:8970) — both
+     resolve to Figma's #626a73 = alias-primary-700. Hover was already
+     correct at -800 (confirmed via node 59:2113), left unchanged. */
+  --border-primary-action-default: var(--alias-primary-700);
+  --border-primary-action-default-hover: var(--alias-primary-800);
+  --border-primary-action-default-pressed: var(--alias-primary-700);
+  --border-primary-action-default-subtle: var(--alias-primary-200);
+  --border-primary-action-default-subtle-hover: var(--alias-primary-300);
+  --border-primary-action-default-subtle-pressed: var(--alias-primary-200);
+  --border-primary-action-focus: var(--alias-primary-800);
+
+  /* ---- Border — secondary(action) ---- */
+  --border-secondary-action-default: var(--alias-secondary-300);
+  --border-secondary-action-default-subtle: var(--alias-secondary-300);
+  --border-secondary-action-default-hover: var(--alias-secondary-400);
+  --border-secondary-action-default-pressed: var(--alias-secondary-300);
+  --border-secondary-action-default-subtle-hover: var(--alias-secondary-400);
+  --border-secondary-action-default-subtle-pressed: var(--alias-secondary-300);
+  --border-secondary-action-focus: var(--alias-secondary-300);
+
+  /* ---- Border — error / success / warning / info ---- */
+  --border-error-default: var(--alias-error-600);
+  --border-error-default-subtle: var(--alias-error-50);
+  --border-error-default-hover: var(--alias-error-700);
+  --border-error-default-pressed: var(--alias-error-800);
+  --border-error-default-subtle-hover: var(--alias-error-200);
+  --border-error-default-subtle-pressed: var(--alias-error-300);
+  --border-error-focus: var(--alias-error-600);
+
+  /* Confirmed live 2026-09-24 (Button light frame, node 59:1186): matches
+     Surface/success/default at success-800 — see note above Surface. */
+  --border-success-default: var(--alias-success-800);
+  --border-success-default-subtle: var(--alias-success-50);
+  --border-success-default-hover: var(--alias-success-900);
+  --border-success-default-pressed: var(--alias-success-950);
+  --border-success-default-subtle-hover: var(--alias-success-150);
+  --border-success-default-subtle-pressed: var(--alias-success-300);
+  --border-success-focus: var(--alias-success-800);
+
+  /* Confirmed live 2026-09-24 (Button light frame, node 59:1186): matches
+     Surface/warning/default at warning-700 — see note above Surface. */
+  --border-warning-default: var(--alias-warning-700);
+  --border-warning-default-subtle: var(--alias-warning-50);
+  --border-warning-default-hover: var(--alias-warning-800);
+  --border-warning-default-pressed: var(--alias-warning-900);
+  --border-warning-default-subtle-hover: var(--alias-warning-300);
+  --border-warning-default-subtle-pressed: var(--alias-warning-200);
+  --border-warning-focus: var(--alias-warning-700);
+
+  --border-info-default: var(--alias-info-600);
+  --border-info-default-subtle: var(--alias-info-50);
+  --border-info-default-hover: var(--alias-info-800);
+  --border-info-default-pressed: var(--alias-info-900);
+  --border-info-default-subtle-hover: var(--alias-info-200);
+  --border-info-default-subtle-pressed: var(--alias-info-300);
+  --border-info-focus: var(--alias-info-500);
+
+  /* ---- Text — generic ---- */
+  --text-default-body: var(--alias-neutral-slate-900);
+  --text-default-caption: var(--alias-neutral-slate-800);
+  --text-default-heading: var(--alias-neutral-slate-950);
+  --text-default-placeholder: var(--alias-neutral-slate-700);
+  --text-disabled-default: var(--alias-neutral-slate-600);
+  --text-disabled-on-colour: var(--alias-neutral-slate-600);
+  /* Figma `Text/on-colour/body` = neutral-slate/50 in Light (#f6f7f9; first
+     confirmed on Button Group Item, pill+selected) and neutral-slate/900 in
+     Dark (re-read 2026-10-09). */
+  --text-on-colour-body: var(--alias-neutral-slate-50); /* Figma 2026-10-09: Text/on-colour/body (was alias-foundations-off-white) */
+
+  /* ---- Text — primary ---- */
+  --text-primary-on-colour: var(--alias-foundations-white);
+  --text-primary-on-colour-hover: var(--alias-primary-150); /* Figma 2026-10-09: Text/primary/on-colour-hover (was alias-neutral-slate-150) */
+  --text-primary-default: var(--alias-primary-900);
+  --text-primary-default-hover: var(--alias-primary-950);
+  --text-primary-on-colour-subtle: var(--alias-primary-900);
+  --text-primary-on-colour-subtle-hover: var(--alias-primary-950);
+
+  /* ---- Text — secondary ---- */
+  --text-secondary-default: var(--alias-secondary-900);
+  --text-secondary-default-hover: var(--alias-secondary-950);
+  --text-secondary-on-colour: var(--alias-secondary-900); /* Figma 2026-10-09: Text/secondary/on-colour (was alias-foundations-white) */
+  --text-secondary-on-colour-subtle: var(--alias-secondary-900);
+
+  /* ---- Text — error / success / warning / info ---- */
+  --text-error-default: var(--alias-error-600);
+  --text-error-default-hover: var(--alias-error-700);
+  --text-error-on-colour: var(--alias-foundations-white);
+  --text-error-on-colour-hover: var(--alias-neutral-slate-150);
+  --text-error-on-colour-subtle: var(--alias-error-700);
+  --text-error-on-colour-subtle-hover: var(--alias-error-800);
+
+  /* Confirmed live 2026-09-24: user manually edited Figma's `success/default`
+     text binding from success-700 to success-800, closing the Surface/Border-
+     vs-Text gap this same pass found (see the Surface note above) — now
+     uniform across all four roles, as originally assumed in §6.11. */
+  --text-success-default: var(--alias-success-800);
+  --text-success-default-hover: var(--alias-success-900);
+  --text-success-on-colour: var(--alias-foundations-white);
+  --text-success-on-colour-hover: var(--alias-neutral-slate-150);
+  --text-success-on-colour-subtle: var(--alias-success-700);
+  --text-success-on-colour-subtle-hover: var(--alias-success-900);
+
+  /* Confirmed live 2026-09-24: user manually edited Figma's `warning/default`
+     (and `default-hover`) text bindings from warning-600/700 to warning-
+     700/800, closing the Surface/Border-vs-Text gap this same pass found
+     (see the Surface note above) — now uniform across all four roles. */
+  --text-warning-default: var(--alias-warning-700);
+  --text-warning-default-hover: var(--alias-warning-800);
+  --text-warning-on-colour: var(--alias-foundations-white);
+  --text-warning-on-colour-hover: var(--alias-neutral-slate-150);
+  --text-warning-on-colour-subtle: var(--alias-warning-600);
+  --text-warning-on-colour-subtle-hover: var(--alias-warning-800);
+
+  --text-info-default: var(--alias-info-600);
+  --text-info-default-hover: var(--alias-info-800);
+  --text-info-on-colour: var(--alias-foundations-white);
+  --text-info-on-colour-hover: var(--alias-neutral-slate-150);
+  --text-info-on-colour-subtle: var(--alias-info-600);
+  --text-info-on-colour-subtle-hover: var(--alias-info-800);
+
+  /* ---- Icon — generic ---- */
+  --icon-disabled-default: var(--alias-neutral-slate-500);
+  /* Figma-confirmed live on Switch's disabled+selected knob (#c8d0d9 =
+     slate-200) — a different disabled icon shade than icon-disabled-default
+     (slate-500), used specifically for icon/knob content sitting on top of
+     a disabled *colored* surface. Dark-mode value not independently
+     confirmed (no live dark-mode Switch instance available); kept equal to
+     light per icon-disabled-default's own light/dark-identical precedent. */
+  --icon-disabled-on-colour: var(--alias-neutral-slate-300);
+
+  /* ---- Icon — primary (Icon on-colour is confirmed distinct from Text
+     on-colour: primary-100, not pure white — see design.md §6.8) ---- */
+  --icon-primary-default: var(--alias-primary-800);
+  --icon-primary-default-hover: var(--alias-primary-900);
+  --icon-primary-on-colour: var(--alias-primary-100);
+  --icon-primary-on-colour-hover: var(--alias-primary-200); /* Figma 2026-10-09: Icon/primary/on-colour-hover (was alias-neutral-slate-200) */
+  /* Figma-confirmed live (Badge's Modifier=active status dot, node
+     118:969): #212326 = alias-primary-900 — matches --text-primary-on-
+     colour-subtle's value exactly, despite Icon/Text on-colour (non-
+     subtle) using different aliases from each other. */
+  --icon-primary-on-colour-subtle: var(--alias-primary-900);
+  --icon-primary-default-subtle: var(--alias-primary-600);
+  --icon-primary-default-subtle-hover: var(--alias-primary-700); /* Figma 2026-10-09: Icon/primary/default-subtle-hover (was alias-primary-800) */
+
+  /* ---- Icon — error / success / warning / info (assumed to follow Text's
+     pattern per the skill's explicit note; not independently confirmed) ---- */
+  --icon-error-default: var(--alias-error-600); /* Figma 2026-10-09: Icon/error/default (was text-error-default) */
+  --icon-error-on-colour: var(--alias-foundations-white); /* Figma 2026-10-09: Icon/error/on-colour (was text-error-on-colour) */
+  --icon-error-on-colour-hover: var(--alias-neutral-slate-150); /* Figma 2026-10-09: Icon/error/on-colour-hover (was text-error-on-colour-hover) */
+  --icon-success-default: var(--alias-success-800); /* Figma 2026-10-09: Icon/success/default (was text-success-default) */
+  --icon-success-on-colour: var(--alias-foundations-white); /* Figma 2026-10-09: Icon/success/on-colour (was text-success-on-colour) */
+  --icon-success-on-colour-hover: var(--alias-neutral-slate-150); /* Figma 2026-10-09: Icon/success/on-colour-hover (was text-success-on-colour-hover) */
+  --icon-warning-default: var(--alias-warning-700); /* Figma 2026-10-09: Icon/warning/default (was text-warning-default) */
+  --icon-warning-on-colour: var(--alias-foundations-white); /* Figma 2026-10-09: Icon/warning/on-colour (was text-warning-on-colour) */
+  --icon-warning-on-colour-hover: var(--alias-neutral-slate-150); /* Figma 2026-10-09: Icon/warning/on-colour-hover (was text-warning-on-colour-hover) */
+  --icon-info-default: var(--alias-info-600); /* Figma 2026-10-09: Icon/info/default (was text-info-default) */
+  --icon-info-on-colour: var(--alias-foundations-white); /* Figma 2026-10-09: Icon/info/on-colour (was text-info-on-colour) */
+  --icon-info-on-colour-hover: var(--alias-neutral-slate-150); /* Figma 2026-10-09: Icon/info/on-colour-hover (was text-info-on-colour-hover) */
+  /* Figma-confirmed live (Link, State=error/Status=hover, node
+     116:5805-equivalent lookup on Link's own component): Icon/error/
+     default-hover exists as its own bound variable, not just an assumed
+     Text-pattern mirror — success/warning/info default-hover extended by
+     the same established assumption, not independently re-confirmed each. */
+  --icon-error-default-hover: var(--alias-error-700); /* Figma 2026-10-09: Icon/error/default-hover (was text-error-default-hover) */
+  --icon-success-default-hover: var(--alias-success-900); /* Figma 2026-10-09: Icon/success/default-hover (was text-success-default-hover) */
+  --icon-warning-default-hover: var(--alias-warning-800); /* Figma 2026-10-09: Icon/warning/default-hover (was text-warning-default-hover) */
+  --icon-info-default-hover: var(--alias-info-800); /* Figma 2026-10-09: Icon/info/default-hover (was text-info-default-hover) */
+
+  /* ---- Added 2026-10-09: Figma Mapped variables that had no CSS token (design.md §6.29) ---- */
+  --surface-page: var(--alias-foundations-white); /* Figma Surface/page */
+  --text-default-hero: var(--alias-neutral-slate-950); /* Figma Text/default/hero */
+  --text-on-colour-hero: var(--alias-neutral-slate-50); /* Figma Text/on-colour/hero */
+  --text-on-colour-heading: var(--alias-neutral-slate-50); /* Figma Text/on-colour/heading */
+  --text-on-colour-caption: var(--alias-neutral-slate-150); /* Figma Text/on-colour/caption */
+  --text-on-colour-placeholder: var(--alias-neutral-slate-200); /* Figma Text/on-colour/placeholder */
+  --text-secondary-on-colour-hover: var(--alias-secondary-950); /* Figma Text/secondary/on-colour-hover */
+  --text-secondary-on-colour-subtle-hover: var(--alias-secondary-950); /* Figma Text/secondary/on-colour-subtle-hover */
+  --icon-primary-on-colour-subtle-hover: var(--alias-primary-950); /* Figma Icon/primary/on-colour-subtle-hover */
+  --icon-secondary-default: var(--alias-secondary-900); /* Figma Icon/secondary/default */
+  --icon-secondary-default-hover: var(--alias-secondary-950); /* Figma Icon/secondary/default-hover */
+  --icon-secondary-on-colour: var(--alias-secondary-900); /* Figma Icon/secondary/on-colour */
+  --icon-secondary-on-colour-hover: var(--alias-secondary-950); /* Figma Icon/secondary/on-colour-hover */
+  --icon-secondary-on-colour-subtle: var(--alias-secondary-900); /* Figma Icon/secondary/on-colour-subtle */
+  --icon-secondary-on-colour-subtle-hover: var(--alias-secondary-950); /* Figma Icon/secondary/on-colour-subtle-hover */
+  --icon-error-on-colour-subtle: var(--alias-error-700); /* Figma Icon/error/on-colour-subtle */
+  --icon-error-on-colour-subtle-hover: var(--alias-error-800); /* Figma Icon/error/on-colour-subtle-hover */
+  --icon-success-on-colour-subtle: var(--alias-success-700); /* Figma Icon/success/on-colour-subtle */
+  --icon-success-on-colour-subtle-hover: var(--alias-success-900); /* Figma Icon/success/on-colour-subtle-hover */
+  --icon-warning-on-colour-subtle: var(--alias-warning-600); /* Figma Icon/warning/on-colour-subtle */
+  --icon-warning-on-colour-subtle-hover: var(--alias-warning-800); /* Figma Icon/warning/on-colour-subtle-hover */
+  --icon-info-on-colour-subtle: var(--alias-info-600); /* Figma Icon/info/on-colour-subtle */
+  --icon-info-on-colour-subtle-hover: var(--alias-info-800); /* Figma Icon/info/on-colour-subtle-hover */
+}
+
+[data-theme='dark'] {
+  --surface-default: var(--alias-neutral-slate-950);
+  /* Confirmed live 2026-09-23 via Toast's Dark mode showcase (Figma
+     `Surface/secondary` = #212326 = slate-900 — matches). */
+  --surface-page-secondary: var(--alias-neutral-slate-900);
+  --surface-disabled-default: var(--alias-neutral-slate-800);
+  /* Confirmed live 2026-09-23 via Toast's Dark mode showcase (Figma
+     `Surface/inverse` = #ffffff, pure white, not a slate tint). */
+  --surface-inverse: var(--alias-foundations-white);
+
+  --surface-primary-action-default: var(--alias-primary-100);
+  --surface-primary-action-default-hover: var(--alias-primary-300);
+  --surface-primary-action-default-pressed: var(--alias-primary-400);
+  --surface-primary-action-default-subtle: var(--alias-primary-900);
+  --surface-primary-action-default-subtle-hover: var(--alias-secondary-800); /* Figma 2026-10-09: Surface/primary(action)/default-subtle-hover (was alias-primary-800) */
+  --surface-primary-action-default-subtle-pressed: var(--alias-secondary-900); /* Figma 2026-10-09: Surface/primary(action)/default-subtle-pressed (was alias-primary-900) */
+
+  --surface-secondary-action-default: var(--alias-secondary-800);
+  --surface-secondary-action-default-subtle: var(--alias-secondary-900);
+  --surface-secondary-action-default-hover: var(--alias-secondary-900);
+  --surface-secondary-action-default-pressed: var(--alias-secondary-950);
+  --surface-secondary-action-default-subtle-hover: var(--alias-secondary-950);
+  --surface-secondary-action-default-subtle-pressed: var(--alias-secondary-950);
+
+  --surface-error-default: var(--alias-error-200);
+  --surface-error-default-subtle: var(--alias-error-900);
+  --surface-error-default-hover: var(--alias-error-400);
+  --surface-error-default-pressed: var(--alias-error-600);
+  --surface-error-default-subtle-hover: var(--alias-error-800);
+  --surface-error-default-subtle-pressed: var(--alias-error-700);
+
+  --surface-success-default: var(--alias-success-400);
+  --surface-success-default-subtle: var(--alias-success-900);
+  --surface-success-default-hover: var(--alias-success-500);
+  --surface-success-default-pressed: var(--alias-success-600);
+  --surface-success-default-subtle-hover: var(--alias-success-500);
+  --surface-success-default-subtle-pressed: var(--alias-success-700);
+  --surface-success-focus: var(--alias-success-300); /* Figma 2026-10-09: Surface/success/focus (was alias-success-500) */
+
+  --surface-warning-default: var(--alias-warning-300);
+  --surface-warning-default-subtle: var(--alias-warning-900);
+  --surface-warning-default-hover: var(--alias-warning-500);
+  --surface-warning-default-pressed: var(--alias-warning-600);
+  --surface-warning-default-subtle-hover: var(--alias-warning-800);
+  --surface-warning-default-subtle-pressed: var(--alias-warning-700);
+
+  --surface-info-default: var(--alias-info-300);
+  --surface-info-default-subtle: var(--alias-info-900);
+  --surface-info-default-hover: var(--alias-info-500);
+  --surface-info-default-pressed: var(--alias-info-600);
+  --surface-info-default-subtle-hover: var(--alias-info-800);
+  --surface-info-default-subtle-pressed: var(--alias-info-700);
+
+  /* Confirmed live 2026-09-23 via Toast's + Dropdown's Dark mode showcases
+     (Figma `Border/default` = #a4b1c0 = slate-500, not slate-800). */
+  --border-default: var(--alias-neutral-slate-500);
+  --border-on-colour: var(--alias-neutral-slate-800);
+  /* Confirmed live 2026-09-23 via Field & Input's Dark mode showcase
+     (Figma `Border/disabled/default` = #42474d = slate-800 — matches). */
+  --border-disabled-default: var(--alias-neutral-slate-800);
+  --border-disabled-on-colour: var(--alias-neutral-slate-150); /* Figma 2026-10-09: Border/disabled/on-colour (was alias-neutral-slate-100) */
+
+  --border-primary-action-default: var(--alias-primary-100);
+  --border-primary-action-default-hover: var(--alias-primary-300);
+  --border-primary-action-default-pressed: var(--alias-primary-100);
+  --border-primary-action-default-subtle: var(--alias-primary-600);
+  --border-primary-action-default-subtle-hover: var(--alias-secondary-800); /* Figma 2026-10-09: Border/primary(action)/default-subtle-hover (was alias-primary-800) */
+  --border-primary-action-default-subtle-pressed: var(--alias-secondary-700); /* Figma 2026-10-09: Border/primary(action)/default-subtle-pressed (was alias-primary-700) */
+  --border-primary-action-focus: var(--alias-primary-100);
+
+  --border-secondary-action-default: var(--alias-secondary-800);
+  --border-secondary-action-default-subtle: var(--alias-secondary-800);
+  --border-secondary-action-default-hover: var(--alias-secondary-700);
+  --border-secondary-action-default-pressed: var(--alias-secondary-800);
+  --border-secondary-action-default-subtle-hover: var(--alias-secondary-700);
+  --border-secondary-action-default-subtle-pressed: var(--alias-secondary-800);
+  --border-secondary-action-focus: var(--alias-secondary-800);
+
+  --border-error-default: var(--alias-error-200);
+  --border-error-default-subtle: var(--alias-error-900);
+  --border-error-default-hover: var(--alias-error-400);
+  --border-error-default-pressed: var(--alias-error-600);
+  --border-error-default-subtle-hover: var(--alias-error-800);
+  --border-error-default-subtle-pressed: var(--alias-error-700);
+  --border-error-focus: var(--alias-error-200);
+
+  --border-success-default: var(--alias-success-400); /* Figma 2026-10-09: Border/success/default (was alias-success-300) */
+  --border-success-default-subtle: var(--alias-success-900);
+  --border-success-default-hover: var(--alias-success-500);
+  --border-success-default-pressed: var(--alias-success-600);
+  --border-success-default-subtle-hover: var(--alias-success-500);
+  --border-success-default-subtle-pressed: var(--alias-success-700);
+  --border-success-focus: var(--alias-success-300);
+
+  --border-warning-default: var(--alias-warning-300);
+  --border-warning-default-subtle: var(--alias-warning-900);
+  --border-warning-default-hover: var(--alias-warning-500);
+  --border-warning-default-pressed: var(--alias-warning-600);
+  --border-warning-default-subtle-hover: var(--alias-warning-800);
+  --border-warning-default-subtle-pressed: var(--alias-warning-700);
+  --border-warning-focus: var(--alias-warning-300);
+
+  --border-info-default: var(--alias-info-300);
+  --border-info-default-subtle: var(--alias-info-900);
+  --border-info-default-hover: var(--alias-info-500); /* Figma 2026-10-09: Border/info/default-hover (was alias-info-400) */
+  --border-info-default-pressed: var(--alias-info-600);
+  --border-info-default-subtle-hover: var(--alias-info-800);
+  --border-info-default-subtle-pressed: var(--alias-info-700);
+  --border-info-focus: var(--alias-info-400);
+
+  /* Confirmed live 2026-09-23 via Field & Input's + Badge's Dark mode
+     showcases (Figma `Text/default/body` = #f6f7f9 — matches). */
+  --text-default-body: var(--alias-neutral-slate-50); /* Figma 2026-10-09: Text/default/body (was alias-foundations-off-white) */
+  /* Confirmed live 2026-09-23 via Dropdown's Dark mode showcase (Figma
+     `Text/default/caption` = #e4e8ec = slate-150, not slate-100). */
+  --text-default-caption: var(--alias-neutral-slate-150);
+  --text-default-heading: var(--alias-neutral-slate-100); /* Figma 2026-10-09: Text/default/heading (was alias-neutral-slate-50) */
+  /* Confirmed live 2026-09-23 via Field & Input's Dark mode showcase
+     (Figma `Text/default/placeholder` = #dbe0e6 = slate-200, not
+     slate-150). */
+  --text-default-placeholder: var(--alias-neutral-slate-200);
+  /* Confirmed live 2026-09-23 via Field & Input's Dark mode showcase
+     (Figma `Text/disabled/default` = #838e9a = slate-600, not slate-500). */
+  --text-disabled-default: var(--alias-neutral-slate-600);
+  /* Confirmed live 2026-09-23 via Button's Dark mode showcase (Figma
+     `Text/disabled/on-colour` = #838e9a = slate-600 — matches). */
+  --text-disabled-on-colour: var(--alias-neutral-slate-600);
+
+  --text-primary-on-colour: var(--alias-primary-900); /* Figma 2026-10-09: Text/primary/on-colour (was alias-neutral-slate-900) */
+  --text-primary-on-colour-hover: var(--alias-primary-950); /* Figma 2026-10-09: Text/primary/on-colour-hover (was alias-neutral-slate-950) */
+  --text-primary-default: var(--alias-primary-100); /* Figma 2026-10-09: Text/primary/default (was alias-neutral-slate-100) */
+  --text-primary-default-hover: var(--alias-primary-300); /* Figma 2026-10-09: Text/primary/default-hover (was alias-neutral-slate-300) */
+  --text-primary-on-colour-subtle: var(--alias-primary-200);
+  --text-primary-on-colour-subtle-hover: var(--alias-primary-300);
+
+  --text-secondary-default: var(--alias-secondary-200); /* Figma 2026-10-09: Text/secondary/default (was alias-neutral-slate-200) */
+  --text-secondary-default-hover: var(--alias-secondary-300);
+  --text-secondary-on-colour: var(--alias-secondary-200); /* Figma 2026-10-09: Text/secondary/on-colour (was alias-secondary-900) */
+  --text-secondary-on-colour-subtle: var(--alias-secondary-200);
+
+  --text-error-default: var(--alias-error-200);
+  --text-error-default-hover: var(--alias-error-400);
+  --text-error-on-colour: var(--alias-neutral-slate-900);
+  --text-error-on-colour-hover: var(--alias-neutral-slate-950);
+  --text-error-on-colour-subtle: var(--alias-error-200);
+  --text-error-on-colour-subtle-hover: var(--alias-error-300);
+
+  --text-success-default: var(--alias-success-400);
+  --text-success-default-hover: var(--alias-success-500);
+  --text-success-on-colour: var(--alias-neutral-slate-900);
+  --text-success-on-colour-hover: var(--alias-neutral-slate-950);
+  --text-success-on-colour-subtle: var(--alias-success-300);
+  --text-success-on-colour-subtle-hover: var(--alias-success-400);
+
+  --text-warning-default: var(--alias-warning-300);
+  --text-warning-default-hover: var(--alias-warning-500);
+  --text-warning-on-colour: var(--alias-neutral-slate-900);
+  --text-warning-on-colour-hover: var(--alias-neutral-slate-950);
+  --text-warning-on-colour-subtle: var(--alias-warning-300);
+  --text-warning-on-colour-subtle-hover: var(--alias-warning-400);
+
+  --text-info-default: var(--alias-info-300);
+  --text-info-default-hover: var(--alias-info-500);
+  --text-info-on-colour: var(--alias-neutral-slate-900);
+  --text-info-on-colour-hover: var(--alias-neutral-slate-950);
+  --text-info-on-colour-subtle: var(--alias-info-300);
+  --text-info-on-colour-subtle-hover: var(--alias-info-400);
+
+  /* Confirmed live 2026-09-23 via Field & Input's + Button's Dark mode
+     showcases (Figma `Icon/disabled/default` = #a4b1c0 = slate-500 —
+     matches). */
+  --icon-disabled-default: var(--alias-neutral-slate-500);
+  /* Confirmed live 2026-09-23 via Field & Input's Dark mode showcase
+     (Figma `Icon/disabled/on-colour` = #a4b1c0 = slate-500, not
+     slate-200). */
+  --icon-disabled-on-colour: var(--alias-neutral-slate-500);
+
+  --icon-primary-default: var(--alias-primary-150);
+  --icon-primary-default-hover: var(--alias-primary-300);
+  --icon-primary-on-colour: var(--alias-primary-900);
+  --icon-primary-on-colour-hover: var(--alias-primary-950); /* Figma 2026-10-09: Icon/primary/on-colour-hover (was alias-neutral-slate-950) */
+  --icon-primary-on-colour-subtle: var(--alias-primary-200);
+  --icon-primary-default-subtle: var(--alias-primary-300); /* Figma 2026-10-09: Icon/primary/default-subtle (was alias-primary-200) */
+  --icon-primary-default-subtle-hover: var(--alias-primary-400); /* Figma 2026-10-09: Icon/primary/default-subtle-hover (was alias-primary-50) */
+
+  --icon-error-default: var(--alias-error-200); /* Figma 2026-10-09: Icon/error/default (was text-error-default) */
+  --icon-error-on-colour: var(--alias-neutral-slate-900); /* Figma 2026-10-09: Icon/error/on-colour (was text-error-on-colour) */
+  --icon-error-on-colour-hover: var(--alias-neutral-slate-950); /* Figma 2026-10-09: Icon/error/on-colour-hover (was text-error-on-colour-hover) */
+  --icon-success-default: var(--alias-success-400); /* Figma 2026-10-09: Icon/success/default (was text-success-default) */
+  --icon-success-on-colour: var(--alias-neutral-slate-900); /* Figma 2026-10-09: Icon/success/on-colour (was text-success-on-colour) */
+  --icon-success-on-colour-hover: var(--alias-neutral-slate-950); /* Figma 2026-10-09: Icon/success/on-colour-hover (was text-success-on-colour-hover) */
+  --icon-warning-default: var(--alias-warning-300); /* Figma 2026-10-09: Icon/warning/default (was text-warning-default) */
+  --icon-warning-on-colour: var(--alias-neutral-slate-900); /* Figma 2026-10-09: Icon/warning/on-colour (was text-warning-on-colour) */
+  --icon-warning-on-colour-hover: var(--alias-neutral-slate-950); /* Figma 2026-10-09: Icon/warning/on-colour-hover (was text-warning-on-colour-hover) */
+  --icon-info-default: var(--alias-info-300); /* Figma 2026-10-09: Icon/info/default (was text-info-default) */
+  --icon-info-on-colour: var(--alias-neutral-slate-900); /* Figma 2026-10-09: Icon/info/on-colour (was text-info-on-colour) */
+  --icon-info-on-colour-hover: var(--alias-neutral-slate-950); /* Figma 2026-10-09: Icon/info/on-colour-hover (was text-info-on-colour-hover) */
+  --icon-error-default-hover: var(--alias-error-400); /* Figma 2026-10-09: Icon/error/default-hover (was text-error-default-hover) */
+  --icon-success-default-hover: var(--alias-success-500); /* Figma 2026-10-09: Icon/success/default-hover (was text-success-default-hover) */
+  --icon-warning-default-hover: var(--alias-warning-500); /* Figma 2026-10-09: Icon/warning/default-hover (was text-warning-default-hover) */
+  --icon-info-default-hover: var(--alias-info-500); /* Figma 2026-10-09: Icon/info/default-hover (was text-info-default-hover) */
+
+  /* ---- Added 2026-10-09: Figma Mapped variables that had no CSS token (design.md §6.29) ---- */
+  --surface-page: var(--alias-neutral-slate-950); /* Figma Surface/page */
+  --text-default-hero: var(--alias-neutral-slate-100); /* Figma Text/default/hero */
+  --text-on-colour-hero: var(--alias-neutral-slate-950); /* Figma Text/on-colour/hero */
+  --text-on-colour-heading: var(--alias-neutral-slate-950); /* Figma Text/on-colour/heading */
+  --text-on-colour-body: var(--alias-neutral-slate-900); /* Figma Text/on-colour/body */
+  --text-on-colour-caption: var(--alias-neutral-slate-800); /* Figma Text/on-colour/caption */
+  --text-on-colour-placeholder: var(--alias-neutral-slate-700); /* Figma Text/on-colour/placeholder */
+  --text-secondary-on-colour-hover: var(--alias-secondary-300); /* Figma Text/secondary/on-colour-hover */
+  --text-secondary-on-colour-subtle-hover: var(--alias-secondary-300); /* Figma Text/secondary/on-colour-subtle-hover */
+  --icon-primary-on-colour-subtle-hover: var(--alias-primary-300); /* Figma Icon/primary/on-colour-subtle-hover */
+  --icon-secondary-default: var(--alias-secondary-300); /* Figma Icon/secondary/default */
+  --icon-secondary-default-hover: var(--alias-secondary-400); /* Figma Icon/secondary/default-hover */
+  --icon-secondary-on-colour: var(--alias-secondary-300); /* Figma Icon/secondary/on-colour */
+  --icon-secondary-on-colour-hover: var(--alias-secondary-400); /* Figma Icon/secondary/on-colour-hover */
+  --icon-secondary-on-colour-subtle: var(--alias-secondary-300); /* Figma Icon/secondary/on-colour-subtle */
+  --icon-secondary-on-colour-subtle-hover: var(--alias-secondary-400); /* Figma Icon/secondary/on-colour-subtle-hover */
+  --icon-error-on-colour-subtle: var(--alias-error-300); /* Figma Icon/error/on-colour-subtle */
+  --icon-error-on-colour-subtle-hover: var(--alias-error-400); /* Figma Icon/error/on-colour-subtle-hover */
+  --icon-success-on-colour-subtle: var(--alias-success-300); /* Figma Icon/success/on-colour-subtle */
+  --icon-success-on-colour-subtle-hover: var(--alias-success-400); /* Figma Icon/success/on-colour-subtle-hover */
+  --icon-warning-on-colour-subtle: var(--alias-warning-300); /* Figma Icon/warning/on-colour-subtle */
+  --icon-warning-on-colour-subtle-hover: var(--alias-warning-400); /* Figma Icon/warning/on-colour-subtle-hover */
+  --icon-info-on-colour-subtle: var(--alias-info-300); /* Figma Icon/info/on-colour-subtle */
+  --icon-info-on-colour-subtle-hover: var(--alias-info-400); /* Figma Icon/info/on-colour-subtle-hover */
+}

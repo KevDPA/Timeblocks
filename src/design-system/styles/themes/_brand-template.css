@@ -1,0 +1,61 @@
+/**
+ * Prefer GENERATING a theme over hand-editing this template: build and
+ * preview one in the Theme Lab (`/theme-lab.html`), then write it with
+ * `npm run theme:gen` or the `theme-builder` agent. This file documents the
+ * hand-written shape the generator produces.
+ *
+ * Brand override template — copy this file, rename it (e.g. `acme.css`),
+ * fill in your brand's values, and import it AFTER `tokens/index.css`.
+ * Activate it by setting `data-brand="<name>"` on <html> (or any ancestor).
+ *
+ * This is the ENTIRE customization surface for a new brand/project. Every
+ * Mapped token and every component picks up the change automatically,
+ * because Mapped only ever references Alias, never Primitives or literal
+ * hex — nothing else in the codebase needs to change.
+ *
+ * Don't overwrite `--slate-*`/`--red-*`/etc. in `primitives.css` — those
+ * are shared raw values. Override the ALIAS pointers here instead.
+ *
+ * The selector MUST be `:root[data-brand=...]`, not a bare
+ * `[data-brand=...]`. Every component's own `.css` file re-imports
+ * `tokens/index.css` itself, which re-asserts `alias.css`'s default
+ * `:root` block after this file loads, import order notwithstanding. A
+ * bare attribute selector ties `:root` on specificity (0,1,0 each) and
+ * loses to that later declaration — confirmed live: it builds and lints
+ * clean but produces zero visual change. `:root[data-brand=...]`
+ * (0,2,0) safely outranks plain `:root` regardless of load order.
+ */
+
+:root[data-brand='_template'] {
+  /* 1. Primary ramp — the main lever. Point it at a different primitive
+        ramp, or define a bespoke set of 12 shades (50 lightest to 950
+        darkest) for this brand's primary color. Leave `--alias-secondary-*`
+        alone unless the brand also wants secondary actions recolored. */
+  /*
+  --alias-primary-50: ...;
+  --alias-primary-100: ...;
+  --alias-primary-150: ...;
+  --alias-primary-200: ...;
+  --alias-primary-300: ...;
+  --alias-primary-400: ...;
+  --alias-primary-500: ...;
+  --alias-primary-600: ...;
+  --alias-primary-700: ...;
+  --alias-primary-800: ...;
+  --alias-primary-900: ...;
+  --alias-primary-950: ...;
+  */
+
+  /* 2. Typeface — two variables control every heading/paragraph style. */
+  /*
+  --font-style-heading: 'Your Brand Font', sans-serif;
+  --font-style-paragraph: 'Your Brand Font Text', sans-serif;
+  */
+
+  /* 3. Optional — corner rounding, if this brand uses a different radius
+        scale (e.g. fully square, or more rounded). */
+  /*
+  --alias-border-radius-100: 0px;
+  --alias-border-radius-200: 0px;
+  */
+}

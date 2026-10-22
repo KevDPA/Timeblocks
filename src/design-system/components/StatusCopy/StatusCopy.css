@@ -1,0 +1,30 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * StatusCopy (`.Status Copy` in Figma) — node 110:1275, key
+ * 405b7b3049e6c3706ddad7f72d84f29094c1a6a9. Type(error/success/information/
+ * warning), each just a 14px text run in the matching semantic `Text/*
+ * /default` token — the simplest possible mapping, confirmed live for all
+ * 4 variants directly (not inferred from one and assumed for the rest).
+ * Used below Field-based molecules (Input, Text Area) for validation/hint
+ * messages that need a semantic color, not just the default hint text.
+ */
+
+.pa-status-copy {
+  display: block;
+  font-family: var(--font-style-paragraph);
+  font-size: 14px;
+}
+
+.pa-status-copy--type-error {
+  color: var(--text-error-default);
+}
+.pa-status-copy--type-success {
+  color: var(--text-success-default);
+}
+.pa-status-copy--type-information {
+  color: var(--text-info-default);
+}
+.pa-status-copy--type-warning {
+  color: var(--text-warning-default);
+}

@@ -1,0 +1,27 @@
+.pa-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.pa-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.pa-icon--loading {
+  /* Reserves layout space while the SVG chunk loads, avoiding a pop-in
+     shift. Material icon SVGs carry no fill attribute, so this class
+     alone (no visible content yet) is enough — nothing to hide. */
+}
+
+/* Social/brand logos aren't uniformly square (e.g. Facebook's mark is
+   12:24) — scale by height only, let width follow the intrinsic aspect
+   ratio via the SVG's own viewBox rather than stretching to a fixed box. */
+.pa-social-icon svg {
+  width: auto;
+  height: 100%;
+}

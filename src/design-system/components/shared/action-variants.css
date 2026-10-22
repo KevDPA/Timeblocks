@@ -1,0 +1,557 @@
+/**
+ * Shared Type × State × Status → Mapped-token binding for "action" controls
+ * (Button, ButtonIcon). Both components' own CSS adds only layout/sizing on
+ * top of this — see Button.css / ButtonIcon.css.
+ *
+ * Three custom properties carry the resolved colors:
+ *   --pa-action-bg      background
+ *   --pa-action-border   border color
+ *   --pa-action-text-fg   Button's label color
+ *   --pa-action-icon-fg   ButtonIcon's icon color (Figma binds Icon/* tokens,
+ *                          which differ slightly from Text/* for on-colour)
+ *
+ * Two more carry Figma's separate hover/focus effects, confirmed via
+ * get_design_context against live Button instances — these are NOT the
+ * same as the bg/border recolor above:
+ *   --pa-action-hover-glow  a 4-layer soft box-shadow Figma applies as a
+ *                            named effect style ("hover/default",
+ *                            "hover/error", ...) tinted with that state's
+ *                            resting Border/{semantic}/default color —
+ *                            this is what reads as "a border appears on
+ *                            hover". Effect styles are literal rgba()
+ *                            values in Figma, not variable-bound, so these
+ *                            are hardcoded here too, matching that.
+ *   --pa-action-focus-ring   the focus ring color. Figma's focus treatment
+ *                            is a SEPARATE absolutely-positioned box: 2px
+ *                            border offset 5px outward from the button,
+ *                            with nothing filling the gap — against a page
+ *                            background that reads as "white ring, then
+ *                            dark ring". Reproduced with a double box-shadow
+ *                            instead of an extra DOM node: an inner
+ *                            "gap" shadow painted in the page's own surface
+ *                            color, then the real ring outside it.
+ *
+ * Real interaction (:hover/:active/:focus-visible) drives the visual state
+ * in the browser. The `.pa-action--status-*` modifier classes duplicate
+ * that for Storybook, so a state can be forced without simulating input —
+ * per PA_DS_FormElements.md, "Status=disabled" wins over everything else.
+ */
+
+.pa-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-100);
+  cursor: pointer;
+  font-family: var(--font-style-paragraph);
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+  background-color: var(--pa-action-bg);
+  border-color: var(--pa-action-border);
+  color: var(--pa-action-text-fg);
+}
+
+.pa-action:hover:not(:disabled),
+.pa-action--status-hover {
+  box-shadow: var(--pa-action-hover-glow);
+}
+
+.pa-action:focus-visible,
+.pa-action--status-focus {
+  outline: none;
+  box-shadow:
+    0 0 0 5px var(--surface-default),
+    0 0 0 7px var(--pa-action-focus-ring, var(--border-primary-action-focus));
+}
+
+.pa-action:disabled,
+.pa-action--status-disabled {
+  cursor: not-allowed;
+}
+
+/* ============ Hover glow — one per State, independent of Type ============
+ * Tint = that state's resting Border/{semantic}/default color, at Figma's
+ * confirmed 4-layer pattern: 0 1px 3px/0.1, 0 0 1px/0.5, 0 1px 1px/0.2,
+ * 0 0 4px/0.2. Declared once per bare state class so every Type picks it
+ * up without repeating it in each Type×State block below. */
+.pa-action--state-default {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(98, 106, 115, 0.1),
+    0 0 0 1px rgba(98, 106, 115, 0.5),
+    0 1px 1px 0 rgba(98, 106, 115, 0.2),
+    0 0 0 4px rgba(98, 106, 115, 0.2);
+}
+.pa-action--state-secondary {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(200, 208, 217, 0.1),
+    0 0 0 1px rgba(200, 208, 217, 0.5),
+    0 1px 1px 0 rgba(200, 208, 217, 0.2),
+    0 0 0 4px rgba(200, 208, 217, 0.2);
+}
+.pa-action--state-error {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(235, 79, 79, 0.1),
+    0 0 0 1px rgba(235, 79, 79, 0.5),
+    0 1px 1px 0 rgba(235, 79, 79, 0.2),
+    0 0 0 4px rgba(235, 79, 79, 0.2);
+}
+.pa-action--state-success {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(38, 151, 76, 0.1),
+    0 0 0 1px rgba(38, 151, 76, 0.5),
+    0 1px 1px 0 rgba(38, 151, 76, 0.2),
+    0 0 0 4px rgba(38, 151, 76, 0.2);
+}
+.pa-action--state-warning {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(223, 105, 38, 0.1),
+    0 0 0 1px rgba(223, 105, 38, 0.5),
+    0 1px 1px 0 rgba(223, 105, 38, 0.2),
+    0 0 0 4px rgba(223, 105, 38, 0.2);
+}
+.pa-action--state-information {
+  --pa-action-hover-glow:
+    0 1px 3px 0 rgba(31, 103, 230, 0.1),
+    0 0 0 1px rgba(31, 103, 230, 0.5),
+    0 1px 1px 0 rgba(31, 103, 230, 0.2),
+    0 0 0 4px rgba(31, 103, 230, 0.2);
+}
+
+/* ============ Type = default (filled) ============ */
+.pa-action--type-default.pa-action--state-default {
+  --pa-action-bg: var(--surface-primary-action-default);
+  --pa-action-border: var(--border-primary-action-default);
+  --pa-action-text-fg: var(--text-primary-on-colour);
+  --pa-action-icon-fg: var(--icon-primary-on-colour);
+  --pa-action-focus-ring: var(--border-primary-action-focus);
+}
+.pa-action--type-default.pa-action--state-default:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-default.pa-action--status-hover {
+  --pa-action-bg: var(--surface-primary-action-default-hover);
+  --pa-action-border: var(--border-primary-action-default-hover);
+  --pa-action-text-fg: var(--text-primary-on-colour-hover);
+  --pa-action-icon-fg: var(--icon-primary-on-colour-hover);
+}
+.pa-action--type-default.pa-action--state-default:active:not(:disabled),
+.pa-action--type-default.pa-action--state-default.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-primary-action-default-pressed);
+  --pa-action-border: var(--border-primary-action-default-pressed);
+}
+
+.pa-action--type-default.pa-action--state-secondary {
+  /* Secondary's filled background is white, not saturated — text stays the
+     dark "default" variant, never on-colour (confirmed against
+     PA_DS_FormElements.md's Type=default binding table). */
+  --pa-action-bg: var(--surface-secondary-action-default);
+  --pa-action-border: var(--border-secondary-action-default);
+  --pa-action-text-fg: var(--text-secondary-default);
+  --pa-action-icon-fg: var(--text-secondary-default);
+  --pa-action-focus-ring: var(--border-secondary-action-focus);
+}
+.pa-action--type-default.pa-action--state-secondary:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-secondary.pa-action--status-hover {
+  --pa-action-bg: var(--surface-secondary-action-default-hover);
+  --pa-action-border: var(--border-secondary-action-default-hover);
+  --pa-action-text-fg: var(--text-secondary-default-hover);
+  --pa-action-icon-fg: var(--text-secondary-default-hover);
+}
+.pa-action--type-default.pa-action--state-secondary:active:not(:disabled),
+.pa-action--type-default.pa-action--state-secondary.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-secondary-action-default-pressed);
+  --pa-action-border: var(--border-secondary-action-default-pressed);
+}
+
+.pa-action--type-default.pa-action--state-error,
+.pa-action--type-default.pa-action--state-success,
+.pa-action--type-default.pa-action--state-warning,
+.pa-action--type-default.pa-action--state-information {
+  --pa-action-text-fg: var(--text-error-on-colour);
+  --pa-action-icon-fg: var(--icon-error-on-colour);
+}
+.pa-action--type-default.pa-action--state-error {
+  --pa-action-bg: var(--surface-error-default);
+  --pa-action-border: var(--border-error-default);
+  --pa-action-focus-ring: var(--border-error-focus);
+}
+.pa-action--type-default.pa-action--state-error:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-error.pa-action--status-hover {
+  --pa-action-bg: var(--surface-error-default-hover);
+  --pa-action-border: var(--border-error-default-hover);
+}
+.pa-action--type-default.pa-action--state-error:active:not(:disabled),
+.pa-action--type-default.pa-action--state-error.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-error-default-pressed);
+  --pa-action-border: var(--border-error-default-pressed);
+}
+.pa-action--type-default.pa-action--state-success {
+  --pa-action-bg: var(--surface-success-default);
+  --pa-action-border: var(--border-success-default);
+  --pa-action-text-fg: var(--text-success-on-colour);
+  --pa-action-icon-fg: var(--icon-success-on-colour);
+  --pa-action-focus-ring: var(--border-success-focus);
+}
+.pa-action--type-default.pa-action--state-success:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-success.pa-action--status-hover {
+  --pa-action-bg: var(--surface-success-default-hover);
+  --pa-action-border: var(--border-success-default-hover);
+}
+.pa-action--type-default.pa-action--state-success:active:not(:disabled),
+.pa-action--type-default.pa-action--state-success.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-success-default-pressed);
+  --pa-action-border: var(--border-success-default-pressed);
+}
+.pa-action--type-default.pa-action--state-warning {
+  --pa-action-bg: var(--surface-warning-default);
+  --pa-action-border: var(--border-warning-default);
+  --pa-action-text-fg: var(--text-warning-on-colour);
+  --pa-action-icon-fg: var(--icon-warning-on-colour);
+  --pa-action-focus-ring: var(--border-warning-focus);
+}
+.pa-action--type-default.pa-action--state-warning:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-warning.pa-action--status-hover {
+  --pa-action-bg: var(--surface-warning-default-hover);
+  --pa-action-border: var(--border-warning-default-hover);
+}
+.pa-action--type-default.pa-action--state-warning:active:not(:disabled),
+.pa-action--type-default.pa-action--state-warning.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-warning-default-pressed);
+  --pa-action-border: var(--border-warning-default-pressed);
+}
+.pa-action--type-default.pa-action--state-information {
+  --pa-action-bg: var(--surface-info-default);
+  --pa-action-border: var(--border-info-default);
+  --pa-action-text-fg: var(--text-info-on-colour);
+  --pa-action-icon-fg: var(--icon-info-on-colour);
+  --pa-action-focus-ring: var(--border-info-focus);
+}
+.pa-action--type-default.pa-action--state-information:hover:not(:disabled),
+.pa-action--type-default.pa-action--state-information.pa-action--status-hover {
+  --pa-action-bg: var(--surface-info-default-hover);
+  --pa-action-border: var(--border-info-default-hover);
+}
+.pa-action--type-default.pa-action--state-information:active:not(:disabled),
+.pa-action--type-default.pa-action--state-information.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-info-default-pressed);
+  --pa-action-border: var(--border-info-default-pressed);
+}
+
+/* ============ Type = subtle (tinted fill + tinted border) ============ */
+.pa-action--type-subtle.pa-action--state-default {
+  --pa-action-bg: var(--surface-primary-action-default-subtle);
+  --pa-action-border: var(--border-primary-action-default-subtle);
+  --pa-action-text-fg: var(--text-primary-on-colour-subtle);
+  --pa-action-icon-fg: var(--icon-primary-default-subtle);
+  --pa-action-focus-ring: var(--border-primary-action-focus);
+}
+.pa-action--type-subtle.pa-action--state-default:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-default.pa-action--status-hover {
+  --pa-action-bg: var(--surface-primary-action-default-subtle-hover);
+  --pa-action-border: var(--border-primary-action-default-subtle-hover);
+  --pa-action-text-fg: var(--text-primary-on-colour-subtle-hover);
+  --pa-action-icon-fg: var(--icon-primary-default-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-default:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-default.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-primary-action-default-subtle-pressed);
+  --pa-action-border: var(--border-primary-action-default-subtle-pressed);
+}
+
+.pa-action--type-subtle.pa-action--state-secondary {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle);
+  --pa-action-border: var(--border-secondary-action-default-subtle);
+  --pa-action-text-fg: var(--text-secondary-on-colour-subtle);
+  --pa-action-icon-fg: var(--text-secondary-on-colour-subtle);
+  --pa-action-focus-ring: var(--border-secondary-action-focus);
+}
+.pa-action--type-subtle.pa-action--state-secondary:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-secondary.pa-action--status-hover {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle-hover);
+  --pa-action-border: var(--border-secondary-action-default-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-secondary:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-secondary.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle-pressed);
+  --pa-action-border: var(--border-secondary-action-default-subtle-pressed);
+}
+
+.pa-action--type-subtle.pa-action--state-error {
+  --pa-action-bg: var(--surface-error-default-subtle);
+  --pa-action-border: var(--border-error-default-subtle);
+  --pa-action-text-fg: var(--text-error-on-colour-subtle);
+  --pa-action-icon-fg: var(--icon-error-default);
+  --pa-action-focus-ring: var(--border-error-focus);
+}
+.pa-action--type-subtle.pa-action--state-error:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-error.pa-action--status-hover {
+  --pa-action-bg: var(--surface-error-default-subtle-hover);
+  --pa-action-border: var(--border-error-default-subtle-hover);
+  --pa-action-text-fg: var(--text-error-on-colour-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-error:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-error.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-error-default-subtle-pressed);
+  --pa-action-border: var(--border-error-default-subtle-pressed);
+}
+.pa-action--type-subtle.pa-action--state-success {
+  --pa-action-bg: var(--surface-success-default-subtle);
+  --pa-action-border: var(--border-success-default-subtle);
+  --pa-action-text-fg: var(--text-success-on-colour-subtle);
+  --pa-action-icon-fg: var(--icon-success-default);
+  --pa-action-focus-ring: var(--border-success-focus);
+}
+.pa-action--type-subtle.pa-action--state-success:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-success.pa-action--status-hover {
+  --pa-action-bg: var(--surface-success-default-subtle-hover);
+  --pa-action-border: var(--border-success-default-subtle-hover);
+  --pa-action-text-fg: var(--text-success-on-colour-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-success:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-success.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-success-default-subtle-pressed);
+  --pa-action-border: var(--border-success-default-subtle-pressed);
+}
+.pa-action--type-subtle.pa-action--state-warning {
+  --pa-action-bg: var(--surface-warning-default-subtle);
+  --pa-action-border: var(--border-warning-default-subtle);
+  --pa-action-text-fg: var(--text-warning-on-colour-subtle);
+  --pa-action-icon-fg: var(--icon-warning-default);
+  --pa-action-focus-ring: var(--border-warning-focus);
+}
+.pa-action--type-subtle.pa-action--state-warning:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-warning.pa-action--status-hover {
+  --pa-action-bg: var(--surface-warning-default-subtle-hover);
+  --pa-action-border: var(--border-warning-default-subtle-hover);
+  --pa-action-text-fg: var(--text-warning-on-colour-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-warning:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-warning.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-warning-default-subtle-pressed);
+  --pa-action-border: var(--border-warning-default-subtle-pressed);
+}
+.pa-action--type-subtle.pa-action--state-information {
+  --pa-action-bg: var(--surface-info-default-subtle);
+  --pa-action-border: var(--border-info-default-subtle);
+  --pa-action-text-fg: var(--text-info-on-colour-subtle);
+  --pa-action-icon-fg: var(--icon-info-default);
+  --pa-action-focus-ring: var(--border-info-focus);
+}
+.pa-action--type-subtle.pa-action--state-information:hover:not(:disabled),
+.pa-action--type-subtle.pa-action--state-information.pa-action--status-hover {
+  --pa-action-bg: var(--surface-info-default-subtle-hover);
+  --pa-action-border: var(--border-info-default-subtle-hover);
+  --pa-action-text-fg: var(--text-info-on-colour-subtle-hover);
+}
+.pa-action--type-subtle.pa-action--state-information:active:not(:disabled),
+.pa-action--type-subtle.pa-action--state-information.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-info-default-subtle-pressed);
+  --pa-action-border: var(--border-info-default-subtle-pressed);
+}
+
+/* ============ Type = outline (white fill + colored border) ============ */
+.pa-action--type-outline {
+  --pa-action-bg: var(--surface-default);
+}
+.pa-action--type-outline.pa-action--state-default {
+  --pa-action-border: var(--border-primary-action-default);
+  --pa-action-text-fg: var(--text-primary-default);
+  --pa-action-icon-fg: var(--icon-primary-default);
+  --pa-action-focus-ring: var(--border-primary-action-focus);
+}
+.pa-action--type-outline.pa-action--state-default:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-default.pa-action--status-hover {
+  --pa-action-border: var(--border-primary-action-default-hover);
+  --pa-action-text-fg: var(--text-primary-default-hover);
+}
+.pa-action--type-outline.pa-action--state-default:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-default.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-primary-action-default-subtle-pressed);
+  --pa-action-border: var(--border-primary-action-default-pressed);
+}
+
+.pa-action--type-outline.pa-action--state-secondary {
+  --pa-action-border: var(--border-secondary-action-default-subtle);
+  --pa-action-text-fg: var(--text-secondary-default);
+  --pa-action-icon-fg: var(--text-secondary-default);
+  --pa-action-focus-ring: var(--border-secondary-action-focus);
+}
+.pa-action--type-outline.pa-action--state-secondary:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-secondary.pa-action--status-hover {
+  --pa-action-border: var(--border-secondary-action-default-subtle-hover);
+  --pa-action-text-fg: var(--text-secondary-default-hover);
+}
+.pa-action--type-outline.pa-action--state-secondary:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-secondary.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle-pressed);
+  --pa-action-border: var(--border-secondary-action-default-subtle-pressed);
+}
+
+.pa-action--type-outline.pa-action--state-error {
+  --pa-action-border: var(--border-error-default);
+  --pa-action-text-fg: var(--text-error-default);
+  --pa-action-icon-fg: var(--icon-error-default);
+  --pa-action-focus-ring: var(--border-error-focus);
+}
+.pa-action--type-outline.pa-action--state-error:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-error.pa-action--status-hover {
+  --pa-action-border: var(--border-error-default-hover);
+  --pa-action-text-fg: var(--text-error-default-hover);
+}
+.pa-action--type-outline.pa-action--state-error:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-error.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-error-default-subtle-pressed);
+  --pa-action-border: var(--border-error-default-pressed);
+}
+.pa-action--type-outline.pa-action--state-success {
+  --pa-action-border: var(--border-success-default);
+  --pa-action-text-fg: var(--text-success-default);
+  --pa-action-icon-fg: var(--icon-success-default);
+  --pa-action-focus-ring: var(--border-success-focus);
+}
+.pa-action--type-outline.pa-action--state-success:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-success.pa-action--status-hover {
+  --pa-action-border: var(--border-success-default-hover);
+  --pa-action-text-fg: var(--text-success-default-hover);
+}
+.pa-action--type-outline.pa-action--state-success:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-success.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-success-default-subtle-pressed);
+  --pa-action-border: var(--border-success-default-pressed);
+}
+.pa-action--type-outline.pa-action--state-warning {
+  --pa-action-border: var(--border-warning-default);
+  --pa-action-text-fg: var(--text-warning-default);
+  --pa-action-icon-fg: var(--icon-warning-default);
+  --pa-action-focus-ring: var(--border-warning-focus);
+}
+.pa-action--type-outline.pa-action--state-warning:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-warning.pa-action--status-hover {
+  --pa-action-border: var(--border-warning-default-hover);
+  --pa-action-text-fg: var(--text-warning-default-hover);
+}
+.pa-action--type-outline.pa-action--state-warning:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-warning.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-warning-default-subtle-pressed);
+  --pa-action-border: var(--border-warning-default-pressed);
+}
+.pa-action--type-outline.pa-action--state-information {
+  --pa-action-border: var(--border-info-default);
+  --pa-action-text-fg: var(--text-info-default);
+  --pa-action-icon-fg: var(--icon-info-default);
+  --pa-action-focus-ring: var(--border-info-focus);
+}
+.pa-action--type-outline.pa-action--state-information:hover:not(:disabled),
+.pa-action--type-outline.pa-action--state-information.pa-action--status-hover {
+  --pa-action-border: var(--border-info-default-hover);
+  --pa-action-text-fg: var(--text-info-default-hover);
+}
+.pa-action--type-outline.pa-action--state-information:active:not(:disabled),
+.pa-action--type-outline.pa-action--state-information.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-info-default-subtle-pressed);
+  --pa-action-border: var(--border-info-default-pressed);
+}
+
+/* ============ Type = transparent (no fill, no stroke) ============ */
+.pa-action--type-transparent {
+  --pa-action-bg: transparent;
+  --pa-action-border: transparent;
+}
+.pa-action--type-transparent.pa-action--state-default {
+  --pa-action-text-fg: var(--text-primary-default);
+  --pa-action-icon-fg: var(--icon-primary-default);
+  --pa-action-focus-ring: var(--border-primary-action-focus);
+}
+.pa-action--type-transparent.pa-action--state-default:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-default.pa-action--status-hover {
+  --pa-action-bg: var(--surface-primary-action-default-subtle-hover);
+  --pa-action-text-fg: var(--text-primary-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-default:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-default.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-primary-action-default-subtle-pressed);
+}
+
+.pa-action--type-transparent.pa-action--state-secondary {
+  --pa-action-text-fg: var(--text-secondary-default);
+  --pa-action-icon-fg: var(--text-secondary-default);
+  --pa-action-focus-ring: var(--border-secondary-action-focus);
+}
+.pa-action--type-transparent.pa-action--state-secondary:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-secondary.pa-action--status-hover {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle-hover);
+  --pa-action-text-fg: var(--text-secondary-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-secondary:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-secondary.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-secondary-action-default-subtle-pressed);
+}
+
+.pa-action--type-transparent.pa-action--state-error {
+  --pa-action-text-fg: var(--text-error-default);
+  --pa-action-icon-fg: var(--icon-error-default);
+  --pa-action-focus-ring: var(--border-error-focus);
+}
+.pa-action--type-transparent.pa-action--state-error:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-error.pa-action--status-hover {
+  --pa-action-bg: var(--surface-error-default-subtle-hover);
+  --pa-action-text-fg: var(--text-error-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-error:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-error.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-error-default-subtle-pressed);
+}
+.pa-action--type-transparent.pa-action--state-success {
+  --pa-action-text-fg: var(--text-success-default);
+  --pa-action-icon-fg: var(--icon-success-default);
+  --pa-action-focus-ring: var(--border-success-focus);
+}
+.pa-action--type-transparent.pa-action--state-success:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-success.pa-action--status-hover {
+  --pa-action-bg: var(--surface-success-default-subtle-hover);
+  --pa-action-text-fg: var(--text-success-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-success:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-success.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-success-default-subtle-pressed);
+}
+.pa-action--type-transparent.pa-action--state-warning {
+  --pa-action-text-fg: var(--text-warning-default);
+  --pa-action-icon-fg: var(--icon-warning-default);
+  --pa-action-focus-ring: var(--border-warning-focus);
+}
+.pa-action--type-transparent.pa-action--state-warning:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-warning.pa-action--status-hover {
+  --pa-action-bg: var(--surface-warning-default-subtle-hover);
+  --pa-action-text-fg: var(--text-warning-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-warning:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-warning.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-warning-default-subtle-pressed);
+}
+.pa-action--type-transparent.pa-action--state-information {
+  --pa-action-text-fg: var(--text-info-default);
+  --pa-action-icon-fg: var(--icon-info-default);
+  --pa-action-focus-ring: var(--border-info-focus);
+}
+.pa-action--type-transparent.pa-action--state-information:hover:not(:disabled),
+.pa-action--type-transparent.pa-action--state-information.pa-action--status-hover {
+  --pa-action-bg: var(--surface-info-default-subtle-hover);
+  --pa-action-text-fg: var(--text-info-default-hover);
+}
+.pa-action--type-transparent.pa-action--state-information:active:not(:disabled),
+.pa-action--type-transparent.pa-action--state-information.pa-action--status-pressed {
+  --pa-action-bg: var(--surface-info-default-subtle-pressed);
+}
+
+/* ============ Disabled — same for every Type/State, per Figma ============ */
+.pa-action:disabled,
+.pa-action--status-disabled {
+  --pa-action-bg: var(--surface-disabled-default);
+  --pa-action-border: transparent;
+  --pa-action-text-fg: var(--text-disabled-on-colour);
+  --pa-action-icon-fg: var(--icon-disabled-default);
+}

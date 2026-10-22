@@ -1,0 +1,244 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Dropdown — Figma node 116:5077, key b8dddce5cf6cd4757dc661a282a7f093edc3b7b9.
+ * Type(default/searchable) × State(open/closed) — only 4 variants, but the
+ * "State=open" one is a compound of Input's own trigger PLUS a Menu panel
+ * built from `.Menu Items` rows, all inspected via `use_figma` node-tree
+ * traversal.
+ *
+ * The trigger is structurally Input's own Label+Field, confirmed live:
+ * closed uses Field's resting border (`Border/primary(action)/default-
+ * subtle`); open reuses Field's own "active" treatment exactly — border
+ * recolors to `Border/primary(action)/default` AND a separate offset
+ * focus ring appears (2px stroke, `Border/primary(action)/focus`, 4px
+ * gap/inset — same technique and dimensions as Field's own focus ring).
+ * The trailing icon swaps `expand_more` ↔ `expand_less` with open state.
+ *
+ * Menu panel: `Surface/default` fill, `Border/primary(action)/default-
+ * subtle` border. Each `.Menu Items` row: icon + Primary Text (16px,
+ * `Text/default/body`) + Secondary Text (16px, `Text/default/caption`),
+ * with a `Border/default` row divider. The one sampled "selected" row
+ * showed BOTH a highlighted `Surface/primary(action)/default-subtle`
+ * background AND a trailing check icon — both signals together, not
+ * either/or.
+ *
+ * Full keyboard-arrow / typeahead combobox behavior is out of scope here
+ * — implemented with click-to-toggle, Escape-to-close, and click-outside-
+ * to-close, plus `role="listbox"`/`"option"` and `aria-expanded`/
+ * `aria-haspopup` for basic assistive-tech support.
+ *
+ * **Bug fix (2026-09-19)**: this file previously claimed "searchable
+ * swaps the read-only trigger for a real `<input>`" — live-checked via
+ * `get_design_context` on `Type=searchable, State=open` (`116:5085`),
+ * that's wrong. The trigger stays the exact same read-only button in
+ * both States (still shows "Make a selection"/the selected value, chevron
+ * flips open/closed same as `Type=default`); the real search field is a
+ * separate `Menu Searchable` (`116:4808`) row rendered as the FIRST row
+ * inside the opened panel, above the results list — a search icon +
+ * text input + a trailing clear icon, confirmed on `Surface/primary
+ * (action)/default-subtle` with a `Border/primary(action)/default-subtle`
+ * divider under it. Fixed to match: the trigger is now identical for
+ * both `Type`s, and `searchable` renders this dedicated search row inside
+ * `.pa-dropdown__panel` instead. Figma's own sample content for that row
+ * also includes a leading "select all" checkbox and gives every result
+ * row its own checkbox (`Menu`'s "checkbox" Modifier) — that's a genuine
+ * multi-select composition, confirmed by the component's own description
+ * ("Results (SLOT): default content is a Menu instance — replace with
+ * custom... content as needed"), i.e. the checkboxes are sample slot
+ * content, not a mandatory structural requirement. Since this `Dropdown`
+ * is single-select, they're intentionally omitted here — the search row
+ * keeps its field + clear icon, and results keep their existing
+ * checkmark-based single-select rendering.
+ */
+
+.pa-dropdown {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--scale-200);
+  width: 100%;
+}
+
+.pa-dropdown__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 36px;
+  padding: var(--scale-200);
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-100);
+  border-color: var(--border-primary-action-default-subtle);
+  background-color: var(--surface-default);
+  transition: border-color 0.15s ease-in-out;
+}
+
+.pa-dropdown--open .pa-dropdown__field {
+  border-color: var(--border-primary-action-default);
+  box-shadow:
+    0 0 0 4px var(--surface-default),
+    0 0 0 5px var(--border-primary-action-focus);
+}
+
+.pa-dropdown--disabled .pa-dropdown__field {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-disabled-default);
+}
+
+.pa-dropdown__trigger {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font-family: var(--font-style-paragraph);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+  cursor: pointer;
+}
+.pa-dropdown__trigger:disabled {
+  cursor: not-allowed;
+}
+
+.pa-dropdown__value,
+.pa-dropdown__placeholder {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pa-dropdown__value {
+  color: var(--text-default-body);
+}
+.pa-dropdown__placeholder {
+  color: var(--text-default-placeholder);
+}
+
+.pa-dropdown__chevron {
+  flex-shrink: 0;
+  color: var(--icon-primary-default);
+}
+
+.pa-dropdown__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-100);
+  border-color: var(--border-primary-action-default-subtle);
+  background-color: var(--surface-default);
+  overflow: hidden;
+}
+
+.pa-dropdown__search {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-200);
+  flex-shrink: 0;
+  padding: var(--scale-300) var(--scale-400);
+  background-color: var(--surface-primary-action-default-subtle);
+  border-bottom: var(--alias-border-width-xm) solid var(--border-primary-action-default-subtle);
+}
+.pa-dropdown__search-icon {
+  flex-shrink: 0;
+  color: var(--icon-primary-default);
+}
+.pa-dropdown__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-style-paragraph);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+  color: var(--text-default-body);
+}
+.pa-dropdown__search-input::placeholder {
+  color: var(--text-default-placeholder);
+}
+.pa-dropdown__search-clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--icon-primary-default);
+  cursor: pointer;
+}
+
+.pa-dropdown__menu {
+  max-height: 288px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pa-dropdown__empty {
+  padding: 12px 16px;
+  font-family: var(--font-style-paragraph);
+  font-size: 14px;
+  color: var(--text-default-caption);
+}
+
+.pa-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-200);
+  padding: 12px 16px;
+  border-bottom: var(--alias-border-width-xm) solid var(--border-default);
+  cursor: pointer;
+}
+.pa-dropdown__item:last-child {
+  border-bottom: none;
+}
+.pa-dropdown__item:hover {
+  background-color: var(--surface-primary-action-default-subtle);
+}
+.pa-dropdown__item--selected {
+  background-color: var(--surface-primary-action-default-subtle);
+}
+
+/* Confirmed live: Menu Items' leading icon and the selected check icon
+   are both bound to Surface/primary(action)/default, not an Icon/* token
+   — an unusual but confirmed choice, reproduced as found. */
+.pa-dropdown__item-icon {
+  flex-shrink: 0;
+  color: var(--surface-primary-action-default);
+}
+
+.pa-dropdown__item-text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--scale-200);
+  flex: 1;
+  min-width: 0;
+}
+.pa-dropdown__item-primary {
+  font-family: var(--font-style-paragraph);
+  font-size: 16px;
+  color: var(--text-default-body);
+}
+.pa-dropdown__item-secondary {
+  font-family: var(--font-style-paragraph);
+  font-size: 16px;
+  color: var(--text-default-caption);
+}
+
+.pa-dropdown__item-check {
+  flex-shrink: 0;
+  color: var(--surface-primary-action-default);
+}

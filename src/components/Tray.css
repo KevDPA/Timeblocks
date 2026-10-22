@@ -1,0 +1,66 @@
+@import '../design-system/styles/tokens/index.css';
+
+.tb-tray {
+  display: flex;
+  flex-direction: column;
+  gap: var(--scale-400);
+  padding: var(--scale-400) var(--scale-700);
+  background: var(--surface-page-secondary);
+}
+.tb-tray__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--scale-300);
+  list-style: none;
+  min-height: var(--scale-1200);
+}
+.tb-tray__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--scale-400);
+  align-items: flex-start;
+}
+.tb-tray__dropdown {
+  width: 341px;
+  max-width: 100%;
+}
+
+/* A draggable project chip — same colour as the blocks it creates. */
+.tb-chip {
+  --tb-surface: var(--surface-primary-action-default-subtle);
+  --tb-border: var(--border-primary-action-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 179px;
+  height: var(--scale-1200);
+  padding: 0 var(--scale-400);
+  background: var(--tb-surface);
+  border: var(--alias-border-width-xm) var(--tb-border-style, solid) var(--tb-border);
+  border-left-width: var(--alias-border-width-md);
+  border-radius: var(--alias-border-radius-100);
+  color: var(--text-default-body);
+  font-weight: 600;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.tb-chip:hover {
+  background: var(--surface-default);
+}
+.tb-chip:focus-visible {
+  outline: var(--alias-border-width-sm) solid var(--border-primary-action-focus);
+}
+.tb-chip--color-1 { --tb-surface: var(--surface-success-default-subtle); --tb-border: var(--border-success-default); }
+.tb-chip--color-2 { --tb-surface: var(--surface-info-default-subtle); --tb-border: var(--border-info-default); }
+.tb-chip--color-3 { --tb-surface: var(--surface-warning-default-subtle); --tb-border: var(--border-warning-default); }
+.tb-chip--color-4 { --tb-surface: var(--surface-default); --tb-border: var(--border-default); --tb-border-style: dashed; }
+
+/* Floating copy of the chip that follows the pointer while it's being dragged in. */
+.tb-ghost {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.9;
+}

@@ -1,0 +1,133 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Loader — Figma node 110:37, key 57970643cf985904b2adcdaeb5583937ef87e873.
+ * Figma's own component description: "Loading indicator... circle — full
+ * circle spinner. quarter circle — quarter arc spinner. spinner — dot-based
+ * spinner... sm — button/compact, md — inline/component, lg — card/panel,
+ * xl — full-page/section." All 24 variants (Type × State × Size) were
+ * inspected directly via `use_figma`'s node tree, not the codegen text —
+ * every leaf renders as a flattened SVG export in Dev Mode, so geometry
+ * came from raw `arcData`/position values, cross-checked with a full
+ * component-set screenshot to confirm visual intent before writing any CSS.
+ *
+ * Ring geometry (Type=circle/quarter circle): both are the SAME shape, a
+ * `donut` ellipse via Figma's `arcData.innerRadius=0.9` (ring thickness =
+ * 10% of radius) — they only differ in sweep angle: circle = 315° visible
+ * (a 45° gap), quarter circle = 90° visible. Reproduced as an SVG
+ * `<circle>` with `stroke-dasharray` (viewBox 0 0 100 100, r=45,
+ * stroke-width=10 — an exact match for the confirmed 10%-of-radius ring
+ * thickness), spun via a CSS `animation` — Figma is static, so the spin
+ * itself is a implementation-only addition, same category of judgment call
+ * as Field's placeholder spinner.
+ *
+ * Dot geometry (Type=spinner): 8 dots, confirmed NOT evenly spaced on a
+ * perfect circle — the 4 cardinal dots (top/right/bottom/left) sit at radius
+ * ≈43.75% of the box, the 4 diagonal dots sit at ≈40% (radius ratio ~0.915,
+ * consistent across all 4 sizes checked) — reproduced exactly via hardcoded
+ * percentage positions, not normalized to a mathematically perfect octagon.
+ * All 8 dots share full opacity in Figma's static asset (no baked-in fade);
+ * the fade/chase look is an animation-only addition via staggered
+ * `animation-delay`, same reasoning as the ring spin above.
+ *
+ * State=inverse swaps `Surface/primary(action)/default` for `Surface/
+ * secondary(action)/default` (white in light mode) — confirmed identical
+ * token across all three Types, live.
+ */
+
+.pa-loader {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ---- Sizes — per Figma's own usage guidance (sm=button/compact,
+   md=inline/component, lg=card/panel, xl=full-page/section) ---- */
+.pa-loader--size-sm {
+  width: 16px;
+  height: 16px;
+}
+.pa-loader--size-md {
+  width: 30px;
+  height: 30px;
+}
+.pa-loader--size-lg {
+  width: 40px;
+  height: 40px;
+}
+.pa-loader--size-xl {
+  width: 50px;
+  height: 50px;
+}
+
+/* ---- Ring (circle / quarter circle) ---- */
+.pa-loader__ring {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: pa-loader-spin 0.9s linear infinite;
+  transform-origin: 50% 50%;
+}
+.pa-loader__ring-path {
+  stroke: var(--surface-primary-action-default);
+}
+.pa-loader--state-inverse .pa-loader__ring-path {
+  stroke: var(--surface-secondary-action-default);
+}
+
+@keyframes pa-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Spinner (8-dot) ---- */
+.pa-loader__dots {
+  position: absolute;
+  inset: 0;
+}
+.pa-loader__dot {
+  position: absolute;
+  width: 12.5%;
+  height: 12.5%;
+  border-radius: var(--alias-border-radius-round);
+  background-color: var(--surface-primary-action-default);
+  transform: translate(-50%, -50%);
+  animation: pa-loader-fade 1s linear infinite;
+}
+.pa-loader--state-inverse .pa-loader__dot {
+  background-color: var(--surface-secondary-action-default);
+}
+.pa-loader__dot:nth-child(1) {
+  animation-delay: -0.875s;
+}
+.pa-loader__dot:nth-child(2) {
+  animation-delay: -0.75s;
+}
+.pa-loader__dot:nth-child(3) {
+  animation-delay: -0.625s;
+}
+.pa-loader__dot:nth-child(4) {
+  animation-delay: -0.5s;
+}
+.pa-loader__dot:nth-child(5) {
+  animation-delay: -0.375s;
+}
+.pa-loader__dot:nth-child(6) {
+  animation-delay: -0.25s;
+}
+.pa-loader__dot:nth-child(7) {
+  animation-delay: -0.125s;
+}
+.pa-loader__dot:nth-child(8) {
+  animation-delay: 0s;
+}
+
+@keyframes pa-loader-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}

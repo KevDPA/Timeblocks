@@ -1,0 +1,241 @@
+@import '../../styles/tokens/index.css';
+
+/**
+ * Field — Figma node 113:1286. Type=default plus, as of Input's build,
+ * pre-tab/post-tab: an attached segment divided by a border, confirmed
+ * live (outer container padding drops to 0 on the tab's side; the tab
+ * itself carries its own 8px padding and a `Border/primary(action)/
+ * default-subtle` divider border). Figma's own `.Pre_tab`/`.Post_tab` are
+ * themselves 96-variant dropdown-style sub-components (icon + label +
+ * chevron) — out of scope to fully rebuild here, so `preTab`/`postTab`
+ * are generic content slots reproducing the confirmed container/divider
+ * styling, not a rebuilt copy of that specific trigger component.
+ *
+ * The rest of this comment covers the original Type=default build:
+ *
+ * All bindings below are live-confirmed via get_variable_defs / bound
+ * paint variables against the canonical file (QsMHb5J2xyNAxJQsypiGUc),
+ * not assumed from the skill doc — though in this case the skill doc
+ * (PA_DS_FormElements.md) matched exactly. Radius is border-radius/100
+ * (4px) — live-checked per component, not assumed shared (the old
+ * border-radius/150 step was removed from Figma; design.md §6.21).
+ *
+ * Real interaction drives status via native pseudo-classes; the
+ * `.pa-field--status-*` modifier classes duplicate that for forcing a
+ * state in Storybook, matching the Button/ButtonIcon pattern.
+ *
+ * CORRECTION (found by re-checking against Figma): the first pass of this
+ * file only wired up border/text color changes and missed two effects
+ * Figma actually applies — the same two effects Button initially missed:
+ *   - Status=hover also gets the "hover/default" 4-layer glow shadow
+ *     (rgba(98,106,115,...) — same tint as Button's, confirmed via
+ *     get_design_context on node 113:1535).
+ *   - Status=active (Field's focus-equivalent) is NOT just a border-color
+ *     change — Figma draws a separate offset ring: 1px border in
+ *     Border/primary(action)/focus, inset -4px (confirmed on node
+ *     113:1639), leaving a 4px gap that reads as the page background
+ *     showing through. Reproduced here as a double box-shadow, same
+ *     technique as Button/CloseButton's focus ring.
+ */
+
+.pa-field {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--scale-200);
+  border-style: solid;
+  border-width: var(--alias-border-width-xm);
+  border-radius: var(--alias-border-radius-100);
+  background-color: var(--surface-default);
+  border-color: var(--border-primary-action-default-subtle);
+  transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+  cursor: text;
+}
+
+.pa-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-style-paragraph);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+  color: var(--text-default-body);
+}
+
+.pa-field__input::placeholder {
+  color: var(--text-default-placeholder);
+}
+
+.pa-field__input:disabled {
+  cursor: not-allowed;
+}
+
+.pa-field__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--icon-primary-default);
+}
+.pa-field__icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* ---- Status=hover (real :hover, or forced via modifier) ----
+ * Glow tint = rgb(98,106,115) = Border/primary(action)/default, Figma's
+ * "hover/default" effect style — same layers/values as Button/CloseButton. */
+.pa-field:hover:not(:has(.pa-field__input:disabled)):not(:has(.pa-field__input:focus)),
+.pa-field--status-hover {
+  border-color: var(--border-primary-action-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(98, 106, 115, 0.1),
+    0 0 0 1px rgba(98, 106, 115, 0.5),
+    0 1px 1px 0 rgba(98, 106, 115, 0.2),
+    0 0 0 4px rgba(98, 106, 115, 0.2);
+}
+.pa-field:hover:not(:has(.pa-field__input:disabled)):not(:has(.pa-field__input:focus)) .pa-field__input,
+.pa-field--status-hover .pa-field__input {
+  color: var(--text-primary-default-hover);
+}
+
+/* ---- Status=active (Field's focus-equivalent) ----
+ * Figma draws a separate offset ring (1px border, Border/primary(action)/
+ * focus, inset -4px) rather than recoloring the field's own border.
+ * Reproduced as a double box-shadow: a 4px "gap" in the page's surface
+ * color, then the 1px ring outside it — same technique as Button/
+ * CloseButton, different offset/width (confirmed per-component, not
+ * assumed identical). */
+.pa-field:has(.pa-field__input:focus),
+.pa-field--status-active {
+  border-color: var(--border-primary-action-default);
+  box-shadow:
+    0 0 0 4px var(--surface-default),
+    0 0 0 5px var(--border-primary-action-focus);
+}
+.pa-field:has(.pa-field__input:focus) .pa-field__input,
+.pa-field--status-active .pa-field__input {
+  color: var(--text-default-body);
+}
+
+/* ---- Status=filled (has a value, not focused) — border/text only, no
+ * ring or glow; Figma's filled variant carries neither effect. ---- */
+.pa-field:has(.pa-field__input:not(:placeholder-shown)):not(:has(.pa-field__input:focus)),
+.pa-field--status-filled {
+  border-color: var(--border-primary-action-default);
+}
+.pa-field:has(.pa-field__input:not(:placeholder-shown)):not(:has(.pa-field__input:focus)) .pa-field__input,
+.pa-field--status-filled .pa-field__input {
+  color: var(--text-default-body);
+}
+
+/* ---- Status=disabled ---- */
+.pa-field:has(.pa-field__input:disabled),
+.pa-field--status-disabled {
+  background-color: var(--surface-disabled-default);
+  border-color: var(--border-disabled-default);
+}
+.pa-field:has(.pa-field__input:disabled) .pa-field__input,
+.pa-field--status-disabled .pa-field__input {
+  color: var(--text-disabled-default);
+}
+.pa-field:has(.pa-field__input:disabled) .pa-field__input::placeholder,
+.pa-field--status-disabled .pa-field__input::placeholder {
+  color: var(--text-disabled-default);
+}
+
+/* ---- State=error ---- */
+.pa-field--state-error {
+  border-color: var(--border-error-default);
+}
+
+/* Hover glow tint is Border/error/default-hover (#a11c1c / rgb(161,28,28))
+ * — CONFIRMED live, and notably NOT the same relationship as primary's
+ * glow (which uses the resting default color, not its own hover shade).
+ * Don't assume one semantic's pattern for another — check each. */
+.pa-field--state-error:hover:not(:has(.pa-field__input:disabled)):not(:has(.pa-field__input:focus)),
+.pa-field--state-error.pa-field--status-hover {
+  border-color: var(--border-error-default-hover);
+  box-shadow:
+    0 1px 3px 0 rgba(161, 28, 28, 0.1),
+    0 0 0 1px rgba(161, 28, 28, 0.5),
+    0 1px 1px 0 rgba(161, 28, 28, 0.2),
+    0 0 0 4px rgba(161, 28, 28, 0.2);
+}
+.pa-field--state-error:hover:not(:has(.pa-field__input:disabled)):not(:has(.pa-field__input:focus)) .pa-field__input,
+.pa-field--state-error.pa-field--status-hover .pa-field__input {
+  color: var(--text-error-default-hover);
+}
+
+/* Active — separate offset ring in Border/error/focus, same 4px gap + 1px
+ * ring technique as the default/primary case, confirmed on node 113:1649. */
+.pa-field--state-error:has(.pa-field__input:focus),
+.pa-field--state-error.pa-field--status-active {
+  border-color: var(--border-error-default);
+  box-shadow:
+    0 0 0 4px var(--surface-default),
+    0 0 0 5px var(--border-error-focus);
+}
+.pa-field--state-error:has(.pa-field__input:focus) .pa-field__input,
+.pa-field--state-error.pa-field--status-active .pa-field__input {
+  color: var(--text-error-default);
+}
+
+/* Filled — border/text only, no ring or glow, matching the default/
+ * primary case (confirmed no effect on either resting-with-content variant). */
+.pa-field--state-error:has(.pa-field__input:not(:placeholder-shown)):not(:has(.pa-field__input:focus)),
+.pa-field--state-error.pa-field--status-filled {
+  border-color: var(--border-error-default);
+}
+.pa-field--state-error:has(.pa-field__input:not(:placeholder-shown)):not(:has(.pa-field__input:focus)) .pa-field__input,
+.pa-field--state-error.pa-field--status-filled .pa-field__input {
+  color: var(--text-error-default);
+}
+
+/* ---- Loading (Status=loader) — renders the real Loader atom, centered. ---- */
+.pa-field--loading {
+  justify-content: center;
+}
+
+/* ---- Sizes ---- */
+.pa-field--size-default {
+  min-height: 36px;
+  padding: var(--scale-200);
+}
+.pa-field--size-sm {
+  min-height: 28px;
+  padding: var(--scale-150) var(--scale-200);
+}
+
+/* ---- Pre-tab / post-tab (attached segment) ----
+ * The outer field drops padding on the tab's side — the tab supplies its
+ * own padding and a divider border, confirmed live. */
+.pa-field--has-pre-tab {
+  padding-left: 0;
+}
+.pa-field--has-post-tab {
+  padding-right: 0;
+}
+.pa-field__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--scale-100);
+  flex-shrink: 0;
+  padding: var(--scale-200);
+  font-family: var(--font-style-paragraph);
+  font-size: var(--body-copy-support-text-size);
+  color: var(--text-primary-default);
+}
+.pa-field__tab--pre {
+  border-right: var(--alias-border-width-xm) solid var(--border-primary-action-default-subtle);
+  border-radius: var(--alias-border-radius-100) 0 0 var(--alias-border-radius-100);
+}
+.pa-field__tab--post {
+  border-left: var(--alias-border-width-xm) solid var(--border-primary-action-default-subtle);
+  border-radius: 0 var(--alias-border-radius-100) var(--alias-border-radius-100) 0;
+}

@@ -1,0 +1,63 @@
+@import '../../styles/tokens/index.css';
+@import '../shared/action-variants.css';
+
+/* Button-specific layout on top of the shared .pa-action color engine.
+ * Sizes match Figma's confirmed live heights (28/36/44px) — the
+ * form-elements skill doc claims 32/40/48px, which doesn't match the
+ * actual Button frame; Figma is canonical, so live wins. */
+
+.pa-button {
+  gap: var(--spacing-sm);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.pa-button__label {
+  line-height: 1;
+}
+
+.pa-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pa-button__icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.pa-button--size-sm {
+  min-height: 28px;
+  padding: var(--scale-100) var(--scale-200);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}
+.pa-button--size-sm .pa-button__icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.pa-button--size-md {
+  min-height: 36px;
+  padding: var(--scale-100) var(--scale-200);
+  font-size: var(--body-copy-standard-text-size);
+  line-height: var(--body-copy-standard-line-height);
+}
+.pa-button--size-md .pa-button__icon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.pa-button--size-lg {
+  min-height: 44px;
+  padding: var(--scale-200);
+  font-size: var(--body-copy-emphasis-text-size);
+  line-height: var(--body-copy-emphasis-line-height);
+}
+.pa-button--size-lg .pa-button__icon {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}

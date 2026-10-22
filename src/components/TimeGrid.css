@@ -1,0 +1,104 @@
+@import '../design-system/styles/tokens/index.css';
+
+.tb-grid {
+  --slot-height: 31px; /* half an hour; one working hour = 62px */
+  border-top: var(--alias-border-width-sm) solid var(--border-default);
+}
+
+.tb-grid__header,
+.tb-grid__columns {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.tb-grid__header {
+  background: var(--surface-page-secondary);
+}
+.tb-grid__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--slot-height) * 2);
+  border-left: var(--alias-border-width-xm) solid var(--border-default);
+}
+.tb-grid__day:first-child {
+  border-left: 0;
+}
+.tb-grid__day-name {
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-default-heading);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}
+.tb-grid__day-meta {
+  color: var(--text-default-caption);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+}
+.tb-grid__day--today .tb-grid__day-name {
+  color: var(--text-primary-default);
+}
+.tb-grid__day--today .tb-grid__day-name::after {
+  content: ' · today';
+  text-transform: none;
+  font-weight: 400;
+}
+
+.tb-grid__body {
+  position: relative;
+  /* 8 working hours + overtime band */
+  height: calc(20 * var(--slot-height));
+}
+
+.tb-grid__rows {
+  position: absolute;
+  inset: 0;
+}
+.tb-grid__row {
+  height: calc(var(--slot-height) * 2);
+  background: var(--surface-page-secondary);
+}
+.tb-grid__row:nth-child(odd) {
+  background: var(--surface-disabled-default);
+}
+.tb-grid__overtime {
+  display: flex;
+  align-items: flex-end;
+  padding: var(--scale-200) var(--scale-300);
+  background: var(--surface-error-default-subtle);
+  border-top: var(--alias-border-width-xm) dashed var(--border-error-default);
+  color: var(--text-default-caption);
+  font-size: var(--body-copy-support-text-size);
+  line-height: var(--body-copy-support-line-height);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Day dividers drawn over the rows, under the blocks. */
+.tb-grid__columns {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tb-grid__column {
+  border-left: var(--alias-border-width-xm) solid var(--border-default);
+}
+.tb-grid__column:first-child {
+  border-left: 0;
+}
+
+.tb-grid__preview {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--surface-primary-action-default-subtle);
+  border: var(--alias-border-width-sm) dashed var(--border-primary-action-default);
+  border-radius: var(--alias-border-radius-100);
+  opacity: 0.8;
+}
+.tb-grid__preview--invalid {
+  background: var(--surface-error-default-subtle);
+  border-color: var(--border-error-default);
+}
